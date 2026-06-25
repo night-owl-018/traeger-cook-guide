@@ -1,7 +1,7 @@
 {
   "domain": "traeger_cook_guide",
   "name": "Traeger Cook Guide",
-  "version": "1.0.2",
+  "version": "1.0.0",
   "documentation": "https://github.com/YOUR_GITHUB_USERNAME/traeger-cook-guide",
   "issue_tracker": "https://github.com/YOUR_GITHUB_USERNAME/traeger-cook-guide/issues",
   "codeowners": ["@YOUR_GITHUB_USERNAME"],
