@@ -1,7 +1,7 @@
 {
   "domain": "traeger_cook_guide",
   "name": "Traeger Cook Guide",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "documentation": "https://github.com/night-owl-018/traeger-cook-guide",
   "issue_tracker": "https://github.com/night-owl-018/traeger-cook-guide/issues",
   "codeowners": ["@night-owl-018"],
