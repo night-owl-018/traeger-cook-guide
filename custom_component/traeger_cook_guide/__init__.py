@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import logging
 
+import homeassistant.helpers.config_validation as cv
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.event import async_call_later
@@ -25,16 +26,15 @@ from .www_install import install_www_files, remove_www_files
 
 _LOGGER = logging.getLogger(__name__)
 
+# Required by hassfest — this integration is config-entry only, no YAML config
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+
 _DASHBOARD_YAML = (
     "type: iframe\n"
     f"url: /local/{WWW_SUBDIR}/{HTML_FILENAME}\n"
     'aspect_ratio: "100%"\n'
     "title: Traeger Cook Guide"
 )
-
-
-async def async_setup(hass: HomeAssistant, config: dict) -> bool:
-    return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
