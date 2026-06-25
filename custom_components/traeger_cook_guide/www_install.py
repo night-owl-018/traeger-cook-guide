@@ -1,4 +1,4 @@
-"""Copy the cook guide HTML to /config/www/traeger_cook_guide/."""
+"""Copy the cook guide HTML from the integration package to /config/www/traeger_cook_guide/."""
 from __future__ import annotations
 
 import logging
@@ -13,50 +13,31 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def install_www_files(hass: HomeAssistant) -> None:
-    """Synchronous — run via async_add_executor_job."""
-    # HACS installs files into /config/custom_components/traeger_cook_guide/
-    # The www/ folder in the repo gets placed two levels up from __file__
-    # Path: /config/custom_components/traeger_cook_guide/__file__
-    #  -> ../../www/traeger_cook_guide.html
-    #  -> /config/www/traeger_cook_guide.html  (HACS places it here)
-    pkg_dir = os.path.dirname(__file__)
+    """Copy HTML from inside the integration package to /config/www/traeger_cook_guide/.
 
-    # Try multiple source locations — HACS can place www files differently
-    candidates = [
-        # HACS places repo root /www/ contents at /config/www/
-        os.path.join(hass.config.config_dir, "www", HTML_FILENAME),
-        # Relative from package: ../../www/filename
-        os.path.normpath(os.path.join(pkg_dir, "..", "..", "www", HTML_FILENAME)),
-        # Relative from package: ../www/filename
-        os.path.normpath(os.path.join(pkg_dir, "..", "www", HTML_FILENAME)),
-    ]
-
-    src = None
-    for candidate in candidates:
-        _LOGGER.debug("Traeger Cook Guide: checking for HTML at %s", candidate)
-        if os.path.isfile(candidate):
-            src = candidate
-            break
+    HACS only downloads custom_components/ — so the HTML lives alongside
+    the Python files and we copy it out to www/ on first setup.
+    """
+    # HTML is bundled inside the integration package itself
+    pkg_dir = os.path.dirname(os.path.abspath(__file__))
+    src = os.path.join(pkg_dir, HTML_FILENAME)
 
     dst_dir = os.path.join(hass.config.config_dir, "www", WWW_SUBDIR)
     dst = os.path.join(dst_dir, HTML_FILENAME)
 
-    # If source is already at destination, nothing to do
-    if src and os.path.normpath(src) == os.path.normpath(dst):
-        _LOGGER.info("Traeger Cook Guide: HTML already at correct location %s", dst)
-        return
-
     os.makedirs(dst_dir, exist_ok=True)
 
-    if src is None:
+    if not os.path.isfile(src):
         _LOGGER.error(
-            "Traeger Cook Guide: HTML source not found in any of: %s",
-            candidates,
+            "Traeger Cook Guide: HTML not found at %s — "
+            "HACS may not have downloaded the integration correctly. "
+            "Try removing and re-downloading in HACS.",
+            src,
         )
         return
 
     shutil.copy2(src, dst)
-    _LOGGER.info("Traeger Cook Guide: HTML installed from %s to %s", src, dst)
+    _LOGGER.info("Traeger Cook Guide: HTML installed to %s", dst)
 
 
 def remove_www_files(hass: HomeAssistant) -> None:
