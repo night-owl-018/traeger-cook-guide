@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Traeger Cook Guide</title>
+<style>
+:root {
+  --bg:#ffffff;--bg2:#f7f7f5;--bg3:#f0eeea;
+  --text:#1a1a1a;--text2:#6b6b6b;--text3:#aaa;
+  --border:rgba(0,0,0,0.11);--border2:rgba(0,0,0,0.2);
+  --rad:8px;--rad-lg:12px;
+  --green-bg:#EAF3DE;--green-text:#3B6D11;--green-border:#97C459;
+  --blue-bg:#E6F1FB;--blue-text:#185FA5;--blue-border:#85B7EB;
+  --amber-bg:#FAEEDA;--amber-text:#854F0B;
+  --red-bg:#FAECE7;--red-text:#993C1D;
+  --success:#1D9E75;--danger:#E24B4A;
+  --accent:#03a9f4;
+  --custom-bg:#EEEDFE;--custom-text:#3C3489;--custom-border:#AFA9EC;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1c1c1e;--bg2:#2c2c2e;--bg3:#3a3a3c;
+  --text:#f5f5f5;--text2:#aaa;--text3:#666;
+  --border:rgba(255,255,255,0.09);--border2:rgba(255,255,255,0.18);
+  --green-bg:#1a2e10;--green-text:#97C459;--green-border:#3B6D11;
+  --blue-bg:#0c2240;--blue-text:#85B7EB;--blue-border:#185FA5;
+  --amber-bg:#2e1f05;--amber-text:#FAC775;
+  --red-bg:#2e1008;--red-text:#F09595;
+  --custom-bg:#26215C;--custom-text:#AFA9EC;--custom-border:#534AB7;
+}}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:14px;padding:16px;max-width:980px;margin:0 auto;}
+
+/* Header */
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+h1{font-size:18px;font-weight:500;display:flex;align-items:center;gap:8px;}
+.live-badge{display:inline-block;font-size:10px;padding:1px 7px;background:var(--danger);color:#fff;border-radius:10px;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.ha-chip{font-size:11px;padding:3px 10px;border-radius:20px;border:0.5px solid var(--border2);background:var(--bg2);color:var(--text2);}
+.ha-chip.ok{border-color:var(--green-border);background:var(--green-bg);color:var(--green-text);}
+.ha-chip.err{border-color:var(--danger);background:var(--red-bg);color:var(--red-text);cursor:pointer;}
+
+/* Probe cards */
+.probe-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.pcard{background:var(--bg);border:0.5px solid var(--border2);border-radius:var(--rad-lg);padding:12px 14px;position:relative;}
+.pcard.p1{border-left:3px solid var(--green-border);}
+.pcard.p2{border-left:3px solid var(--blue-border);}
+.pcard-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--text2);margin-bottom:5px;}
+.pcard-food{font-size:13px;font-weight:500;}
+.pcard-detail{font-size:11px;color:var(--text2);margin-top:2px;}
+.pcard-temp{font-size:22px;font-weight:500;color:var(--accent);margin:4px 0 2px;}
+.pcard-empty{font-size:12px;color:var(--text3);font-style:italic;}
+.pcard-status{font-size:11px;margin-top:4px;}
+.status-warn{color:#BA7517;font-weight:500;}
+.status-done{color:var(--success);font-weight:500;}
+.pcard-progress{height:4px;background:var(--bg3);border-radius:2px;margin-top:8px;overflow:hidden;}
+.pcard-bar{height:4px;background:var(--success);border-radius:2px;transition:width .8s ease;}
+.pcard-bar.warm{background:#EF9F27;}
+.pcard-bar.hot{background:var(--danger);}
+.pcard-clear{position:absolute;top:10px;right:12px;font-size:11px;color:var(--danger);cursor:pointer;background:none;border:none;padding:0;}
+
+/* Search + chips */
+.search-wrap{position:relative;margin-bottom:10px;}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--text3);fill:none;pointer-events:none;}
+input[type=text],input[type=number],select{font-family:inherit;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--rad);background:var(--bg);color:var(--text);outline:none;}
+input[type=text]{width:100%;padding:8px 10px 8px 34px;}
+input[type=text]:focus,input[type=number]:focus,select:focus{border-color:var(--accent);}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.chip{padding:4px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:0.5px solid var(--border2);background:var(--bg2);color:var(--text2);transition:background .15s;user-select:none;}
+.chip.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.chip.custom-chip{border-color:var(--custom-border);color:var(--custom-text);background:var(--custom-bg);}
+.chip.custom-chip.active{background:var(--custom-text);color:#fff;border-color:var(--custom-text);}
+
+/* Table */
+.section-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--text2);margin:16px 0 6px;display:flex;align-items:center;gap:8px;}
+.custom-label-badge{font-size:10px;padding:1px 7px;border-radius:10px;background:var(--custom-bg);color:var(--custom-text);border:0.5px solid var(--custom-border);font-weight:500;}
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;min-width:540px;}
+th{text-align:left;padding:6px 8px;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.04em;color:var(--text2);border-bottom:0.5px solid var(--border2);}
+th:nth-child(1){width:27%;}th:nth-child(2){width:20%;}th:nth-child(3){width:13%;}th:nth-child(4){width:14%;}th:nth-child(5){width:26%;}
+td{padding:9px 8px;border-bottom:0.5px solid var(--border);vertical-align:top;font-size:13px;}
+tr.row:hover td{background:var(--bg2);}
+tr.row.sel-p1 td{background:var(--green-bg);}
+tr.row.sel-p2 td{background:var(--blue-bg);}
+tr.row.custom-row td:first-child{border-left:2px solid var(--custom-border);}
+.food-name{font-weight:500;}
+.tip-txt{font-size:11px;color:var(--text2);margin-top:2px;}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500;}
+.badge-hot{background:var(--red-bg);color:var(--red-text);}
+.badge-med{background:var(--amber-bg);color:var(--amber-text);}
+.badge-low{background:var(--green-bg);color:var(--green-text);}
+.badge-custom{background:var(--custom-bg);color:var(--custom-text);}
+.int-temp{font-size:12px;color:var(--text2);}
+.assign-wrap{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
+.abtn{padding:4px 10px;font-size:12px;border:0.5px solid var(--border2);border-radius:6px;cursor:pointer;background:var(--bg2);color:var(--text2);transition:background .1s;}
+.abtn:hover.p1h{background:var(--green-bg);color:var(--green-text);border-color:var(--green-border);}
+.abtn:hover.p2h{background:var(--blue-bg);color:var(--blue-text);border-color:var(--blue-border);}
+.del-btn{padding:3px 8px;font-size:12px;border:0.5px solid rgba(226,75,74,0.3);border-radius:6px;cursor:pointer;background:none;color:var(--danger);transition:background .1s;}
+.del-btn:hover{background:var(--red-bg);}
+.no-results{text-align:center;color:var(--text3);padding:2rem;font-size:13px;}
+
+/* Custom food builder */
+.add-section{margin-top:24px;border-top:0.5px solid var(--border2);padding-top:18px;}
+.add-section h2{font-size:14px;font-weight:500;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.add-form{background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--rad-lg);padding:16px;}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:12px;}
+.field{display:flex;flex-direction:column;gap:4px;}
+.field label{font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;}
+.field input,.field select{padding:7px 10px;border-radius:var(--rad);}
+.field input[type=number]{padding:7px 10px;}
+.field select{padding:7px 10px;cursor:pointer;}
+.form-row-bottom{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;}
+.field.grow{flex:1;min-width:200px;}
+.add-btn{padding:8px 20px;font-size:13px;font-weight:500;border:none;border-radius:var(--rad);background:var(--accent);color:#fff;cursor:pointer;white-space:nowrap;transition:opacity .15s;}
+.add-btn:hover{opacity:.88;}
+.add-btn:disabled{opacity:.45;cursor:not-allowed;}
+.form-hint{font-size:11px;color:var(--text3);margin-top:8px;}
+
+/* Custom list manager */
+.custom-list{margin-top:14px;}
+.custom-list-header{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);margin-bottom:6px;}
+.custom-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--rad);border:0.5px solid var(--border);background:var(--bg);margin-bottom:5px;}
+.custom-item-info{flex:1;font-size:13px;}
+.custom-item-name{font-weight:500;}
+.custom-item-meta{font-size:11px;color:var(--text2);margin-top:1px;}
+.custom-item-del{padding:3px 8px;font-size:11px;border:0.5px solid rgba(226,75,74,0.3);border-radius:5px;cursor:pointer;background:none;color:var(--danger);}
+.custom-item-del:hover{background:var(--red-bg);}
+.empty-custom{font-size:12px;color:var(--text3);font-style:italic;padding:8px 0;}
+
+/* Toast */
+#toast{position:fixed;bottom:20px;right:20px;background:var(--success);color:#fff;padding:10px 18px;border-radius:var(--rad-lg);font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;transform:translateY(8px);z-index:999;}
+#toast.show{opacity:1;transform:translateY(0);}
+#toast.warn{background:#BA7517;}
+#toast.err{background:var(--danger);}
+
+.ha-note{font-size:11px;color:var(--text3);margin-top:14px;padding:8px 12px;background:var(--bg2);border-radius:var(--rad);border:0.5px solid var(--border);}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🔥 Traeger Cook Guide <span id="live-badge" class="live-badge" style="display:none;">LIVE</span></h1>
+  <span id="ha-chip" class="ha-chip err" onclick="promptToken()">HA: connecting…</span>
+</div>
+
+<!-- Probe cards -->
+<div class="probe-grid">
+  <div class="pcard p1">
+    <div class="pcard-title">Probe 1</div>
+    <div id="p1-food" class="pcard-empty">No food assigned</div>
+    <div id="p1-temp" class="pcard-temp" style="display:none;"></div>
+    <div id="p1-status" class="pcard-status"></div>
+    <div class="pcard-progress" id="p1-progress-wrap" style="display:none;"><div id="p1-bar" class="pcard-bar" style="width:0%"></div></div>
+    <button id="p1-clear" class="pcard-clear" style="display:none;" onclick="clearProbe(1)">✕ clear</button>
+  </div>
+  <div class="pcard p2">
+    <div class="pcard-title">Probe 2</div>
+    <div id="p2-food" class="pcard-empty">No food assigned</div>
+    <div id="p2-temp" class="pcard-temp" style="display:none;"></div>
+    <div id="p2-status" class="pcard-status"></div>
+    <div class="pcard-progress" id="p2-progress-wrap" style="display:none;"><div id="p2-bar" class="pcard-bar" style="width:0%"></div></div>
+    <button id="p2-clear" class="pcard-clear" style="display:none;" onclick="clearProbe(2)">✕ clear</button>
+  </div>
+</div>
+
+<!-- Search -->
+<div class="search-wrap">
+  <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+  <input type="text" id="search" placeholder="Search food (e.g. brisket, salmon, ribs...)">
+</div>
+
+<!-- Chips -->
+<div class="chips" id="chips"></div>
+
+<!-- Table output -->
+<div id="output"></div>
+
+<!-- ── Custom Food Builder ── -->
+<div class="add-section">
+  <h2>➕ Add Custom Food</h2>
+  <div class="add-form">
+    <div class="form-grid">
+      <div class="field grow">
+        <label>Food name *</label>
+        <input type="text" id="cf-name" placeholder="e.g. Wagyu brisket" maxlength="60">
+      </div>
+      <div class="field">
+        <label>Category *</label>
+        <select id="cf-cat">
+          <option value="">— pick one —</option>
+          <option>Beef</option><option>Pork</option><option>Poultry</option>
+          <option>Seafood</option><option>Lamb</option><option>Vegetables</option>
+          <option>Sides &amp; Extras</option><option>Desserts &amp; Bread</option>
+          <option>Custom</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Smoker temp (°F) *</label>
+        <input type="number" id="cf-smoke" placeholder="225" min="100" max="600" style="width:100%">
+      </div>
+      <div class="field">
+        <label>Smoker temp max</label>
+        <input type="number" id="cf-smoke-max" placeholder="250 (optional)" min="100" max="600" style="width:100%">
+      </div>
+      <div class="field">
+        <label>Cook time</label>
+        <input type="text" id="cf-time" placeholder="e.g. 10–14 hrs" maxlength="30">
+      </div>
+      <div class="field">
+        <label>Internal target (°F)</label>
+        <input type="number" id="cf-target" placeholder="e.g. 203" min="80" max="250" style="width:100%">
+      </div>
+    </div>
+    <div class="form-row-bottom">
+      <div class="field grow">
+        <label>Tip / notes</label>
+        <input type="text" id="cf-tip" placeholder="e.g. Wrap at 165°F, rest 1 hr" maxlength="80">
+      </div>
+      <button class="add-btn" id="add-btn" onclick="addCustomFood()">Add to list</button>
+    </div>
+    <div class="form-hint">* Required. Internal target temp wires directly to your HOPEPOP probe in HA when you assign it.</div>
+  </div>
+
+  <!-- Saved custom entries -->
+  <div class="custom-list">
+    <div class="custom-list-header">Your custom entries</div>
+    <div id="custom-list-items"></div>
+  </div>
+</div>
+
+<div class="ha-note">
+  Click any row → P1 or P2 to assign. HA auto-sets target temp and sends push alerts at 10°F from target and again when done.
+  Custom entries are saved locally and survive page refreshes.
+</div>
+
+<div id="toast"></div>
+
+<script>
+const COOK_DATA = [
+  {cat:"Beef",items:[
+    {name:"Brisket (whole packer)",smoke:"225–250°F",time:"10–16 hrs",internal:"203°F",tip:"Wrap at 165°F",target:203,haType:"Brisket"},
+    {name:"Brisket flat",smoke:"225–250°F",time:"6–10 hrs",internal:"203°F",tip:"Wrap at 165°F",target:203,haType:"Brisket"},
+    {name:"Beef back ribs",smoke:"225–250°F",time:"5–7 hrs",internal:"195–200°F",tip:"3-2-1 method",target:198,haType:"Beef Ribs"},
+    {name:"Beef short ribs",smoke:"250°F",time:"8–10 hrs",internal:"205°F",tip:"Unwrapped",target:205,haType:"Beef Ribs"},
+    {name:"Tri-tip",smoke:"225°F",time:"1.5–2 hrs",internal:"135°F (med-rare)",tip:"Sear after smoke",target:135,haType:"Beef Medium Rare"},
+    {name:"Chuck roast",smoke:"250°F",time:"8–10 hrs",internal:"205°F",tip:"Wrap at 165°F",target:205,haType:"Beef Ribs"},
+    {name:"Burgers",smoke:"375–400°F",time:"25–30 min",internal:"160°F",tip:"",target:160,haType:"Beef Well Done"},
+    {name:"Steaks (ribeye/NY strip)",smoke:"225°F then 450°F",time:"45–60 min",internal:"130–135°F (med-rare)",tip:"Reverse sear",target:133,haType:"Beef Medium Rare"},
+    {name:"Meatloaf",smoke:"250°F",time:"3–4 hrs",internal:"160°F",tip:"",target:160,haType:"Beef Well Done"},
+    {name:"Beef jerky",smoke:"180°F",time:"4–6 hrs",internal:"—",tip:"Slice thin, marinate",target:null,haType:"None"},
+  ]},
+  {cat:"Pork",items:[
+    {name:"Pulled pork (shoulder/butt)",smoke:"225–250°F",time:"10–14 hrs",internal:"205°F",tip:"Wrap at 165°F",target:205,haType:"Pulled Pork"},
+    {name:"Spare ribs",smoke:"225°F",time:"5–6 hrs",internal:"195–200°F",tip:"3-2-1 method",target:198,haType:"Pork Ribs"},
+    {name:"Baby back ribs",smoke:"225°F",time:"4.5–5.5 hrs",internal:"195–200°F",tip:"2-2-1 method",target:198,haType:"Pork Ribs"},
+    {name:"St. Louis ribs",smoke:"225°F",time:"5–6 hrs",internal:"195–200°F",tip:"3-2-1 method",target:198,haType:"Pork Ribs"},
+    {name:"Pork tenderloin",smoke:"225°F",time:"1.5–2 hrs",internal:"145°F",tip:"",target:145,haType:"Pork Ribs"},
+    {name:"Pork loin",smoke:"225°F",time:"2–3 hrs",internal:"145°F",tip:"",target:145,haType:"Pork Ribs"},
+    {name:"Ham (pre-cooked)",smoke:"225°F",time:"3–5 hrs",internal:"140°F",tip:"Glaze last 30 min",target:140,haType:"Pork Ribs"},
+    {name:"Pork belly",smoke:"250°F",time:"4–5 hrs",internal:"165°F",tip:"Score the fat",target:165,haType:"Pork Ribs"},
+    {name:"Sausage (raw)",smoke:"225°F",time:"1.5–2 hrs",internal:"160°F",tip:"",target:160,haType:"Beef Well Done"},
+    {name:"Bacon",smoke:"200–225°F",time:"30–45 min",internal:"—",tip:"Cold smoke works great",target:null,haType:"None"},
+    {name:"Pork chops",smoke:"225°F",time:"1–1.5 hrs",internal:"145°F",tip:"",target:145,haType:"Pork Ribs"},
+  ]},
+  {cat:"Poultry",items:[
+    {name:"Whole chicken",smoke:"275°F",time:"3–4 hrs",internal:"165°F",tip:"Pat dry, no brine needed",target:165,haType:"Chicken Well Done"},
+    {name:"Spatchcock chicken",smoke:"375°F",time:"1.5–2 hrs",internal:"165°F",tip:"Crispier skin",target:165,haType:"Chicken Well Done"},
+    {name:"Chicken thighs",smoke:"275°F",time:"1.5–2 hrs",internal:"175°F",tip:"Higher temp = better skin",target:175,haType:"Chicken Well Done"},
+    {name:"Chicken breasts",smoke:"225°F",time:"1–1.5 hrs",internal:"165°F",tip:"Brine first",target:165,haType:"Chicken Breast"},
+    {name:"Chicken wings",smoke:"250°F then 425°F",time:"2 hrs + 15 min",internal:"175°F",tip:"Crank heat at end",target:175,haType:"Chicken Well Done"},
+    {name:"Whole turkey",smoke:"275°F",time:"4–8 hrs",internal:"165°F (thigh)",tip:"Spatchcock for even cook",target:165,haType:"Chicken Well Done"},
+    {name:"Turkey breast",smoke:"250°F",time:"3–4 hrs",internal:"165°F",tip:"",target:165,haType:"Chicken Well Done"},
+    {name:"Duck (whole)",smoke:"275°F",time:"3–4 hrs",internal:"165°F",tip:"Score skin to render fat",target:165,haType:"Chicken Well Done"},
+  ]},
+  {cat:"Seafood",items:[
+    {name:"Salmon fillet",smoke:"180–225°F",time:"1–2 hrs",internal:"145°F",tip:"Cold smoke 2 hrs first optional",target:145,haType:"Salmon Well Done"},
+    {name:"Whole trout",smoke:"225°F",time:"1–1.5 hrs",internal:"145°F",tip:"",target:145,haType:"Lean Fish"},
+    {name:"Halibut",smoke:"225°F",time:"45–60 min",internal:"145°F",tip:"Don't overcook",target:145,haType:"Lean Fish"},
+    {name:"Shrimp",smoke:"225°F",time:"30–45 min",internal:"145°F",tip:"Shell on retains moisture",target:145,haType:"Lean Fish"},
+    {name:"Lobster tails",smoke:"275°F",time:"30–45 min",internal:"145°F",tip:"Butter baste",target:145,haType:"Lean Fish"},
+    {name:"Scallops",smoke:"225°F",time:"45–60 min",internal:"130°F",tip:"Dry well before smoking",target:130,haType:"Salmon Medium"},
+  ]},
+  {cat:"Lamb",items:[
+    {name:"Leg of lamb",smoke:"250°F",time:"4–6 hrs",internal:"145°F (med)",tip:"",target:145,haType:"Beef Medium"},
+    {name:"Lamb shoulder",smoke:"250°F",time:"6–8 hrs",internal:"195°F",tip:"Pull like pork",target:195,haType:"Beef Ribs"},
+    {name:"Rack of lamb",smoke:"225°F",time:"1.5 hrs",internal:"130–135°F (med-rare)",tip:"Reverse sear",target:133,haType:"Beef Medium Rare"},
+    {name:"Lamb chops",smoke:"225°F",time:"45–60 min",internal:"130–135°F",tip:"",target:133,haType:"Beef Medium Rare"},
+  ]},
+  {cat:"Vegetables",items:[
+    {name:"Corn on the cob",smoke:"225°F",time:"60–90 min",internal:"—",tip:"Husk on",target:null,haType:"None"},
+    {name:"Baked potato",smoke:"225–250°F",time:"2–2.5 hrs",internal:"210°F",tip:"Rub with oil + salt",target:210,haType:"Beef Well Done"},
+    {name:"Asparagus",smoke:"375°F",time:"15–20 min",internal:"—",tip:"",target:null,haType:"None"},
+    {name:"Jalapeño poppers",smoke:"250°F",time:"60–90 min",internal:"—",tip:"Fill with cream cheese",target:null,haType:"None"},
+    {name:"Stuffed mushrooms",smoke:"250°F",time:"45–60 min",internal:"—",tip:"",target:null,haType:"None"},
+    {name:"Smoked cream cheese",smoke:"225°F",time:"2 hrs",internal:"—",tip:"",target:null,haType:"None"},
+    {name:"Bell peppers",smoke:"225°F",time:"1.5–2 hrs",internal:"—",tip:"",target:null,haType:"None"},
+    {name:"Cauliflower (whole)",smoke:"250°F",time:"2–2.5 hrs",internal:"—",tip:"",target:null,haType:"None"},
+  ]},
+  {cat:"Sides & Extras",items:[
+    {name:"Baked beans",smoke:"250°F",time:"3–4 hrs",internal:"—",tip:"Uncovered to absorb smoke",target:null,haType:"None"},
+    {name:"Mac & cheese",smoke:"225°F",time:"1–1.5 hrs",internal:"—",tip:"Cast iron",target:null,haType:"None"},
+    {name:"Smoked nuts",smoke:"180°F",time:"2–3 hrs",internal:"—",tip:"Stir every 30 min",target:null,haType:"None"},
+    {name:"Smoked queso",smoke:"225°F",time:"1.5–2 hrs",internal:"—",tip:"Cast iron, stir occasionally",target:null,haType:"None"},
+    {name:"Beef jerky",smoke:"180°F",time:"4–6 hrs",internal:"—",tip:"Thin slices, marinated",target:null,haType:"None"},
+    {name:"Pizza",smoke:"450–500°F",time:"12–15 min",internal:"—",tip:"Preheat stone 45 min",target:null,haType:"None"},
+    {name:"Smoked deviled eggs",smoke:"180°F",time:"30–45 min",internal:"—",tip:"Pre-hardboil first",target:null,haType:"None"},
+    {name:"ABTs (atomic buffalo turds)",smoke:"250°F",time:"1.5–2 hrs",internal:"165°F",tip:"Bacon-wrapped jalapeños",target:165,haType:"Chicken Well Done"},
+  ]},
+  {cat:"Desserts & Bread",items:[
+    {name:"Banana pudding",smoke:"225°F",time:"1–1.5 hrs",internal:"—",tip:"",target:null,haType:"None"},
+    {name:"Brownies",smoke:"325°F",time:"35–45 min",internal:"—",tip:"",target:null,haType:"None"},
+    {name:"Peach cobbler",smoke:"350°F",time:"45–60 min",internal:"—",tip:"Cast iron",target:null,haType:"None"},
+    {name:"Cheesecake",smoke:"250°F",time:"1.5–2 hrs",internal:"—",tip:"",target:null,haType:"None"},
+    {name:"Cinnamon rolls",smoke:"325°F",time:"25–35 min",internal:"—",tip:"",target:null,haType:"None"},
+  ]},
+];
+
+const HA_ENTITIES = {
+  p1Temp:"sensor.bt_proxy_hopepop_probe_1_temp",p2Temp:"sensor.bt_proxy_hopepop_probe_2_temp",
+  p1MeatType:"input_select.probe_1_meat_type",p2MeatType:"input_select.probe_2_meat_type",
+  p1TargetTemp:"input_number.probe_1_target_temp",p2TargetTemp:"input_number.probe_2_target_temp",
+  p1AlertSent:"input_boolean.probe_1_alert_sent",p2AlertSent:"input_boolean.probe_2_alert_sent",
+};
+
+// ── State ─────────────────────────────────────────────────
+let haWs=null, haConnected=false, haToken=null, msgId=1, stateMap={};
+let probe1Item=null, probe2Item=null;
+let activeCat="All", query="";
+let customFoods = [];
+
+// ── LocalStorage ──────────────────────────────────────────
+const LS_KEY = "traeger_custom_foods";
+function loadCustom() {
+  try { customFoods = JSON.parse(localStorage.getItem(LS_KEY)) || []; } catch{ customFoods=[]; }
+}
+function saveCustom() {
+  localStorage.setItem(LS_KEY, JSON.stringify(customFoods));
+}
+
+// ── Custom food CRUD ──────────────────────────────────────
+function addCustomFood() {
+  const name = document.getElementById("cf-name").value.trim();
+  const cat  = document.getElementById("cf-cat").value;
+  const smokeMin = parseInt(document.getElementById("cf-smoke").value);
+  const smokeMax = parseInt(document.getElementById("cf-smoke-max").value) || null;
+  const time = document.getElementById("cf-time").value.trim() || "—";
+  const target = parseInt(document.getElementById("cf-target").value) || null;
+  const tip  = document.getElementById("cf-tip").value.trim();
+
+  if (!name) { showToast("Food name is required","err"); return; }
+  if (!cat)  { showToast("Pick a category","err"); return; }
+  if (!smokeMin || smokeMin < 100) { showToast("Enter a valid smoker temp","err"); return; }
+
+  const smokeStr = smokeMax && smokeMax > smokeMin
+    ? `${smokeMin}–${smokeMax}°F`
+    : `${smokeMin}°F`;
+
+  const entry = {
+    id: Date.now(),
+    name, cat,
+    smoke: smokeStr,
+    time,
+    internal: target ? `${target}°F` : "—",
+    tip, target,
+    haType: target ? closestHaType(target) : "None",
+    custom: true,
+  };
+
+  customFoods.push(entry);
+  saveCustom();
+  clearForm();
+  buildChips();
+  renderCustomList();
+  render();
+  showToast(`"${name}" added to ${cat}`);
+}
+
+function deleteCustomFood(id) {
+  const entry = customFoods.find(f => f.id === id);
+  if (!entry) return;
+  if (!confirm(`Delete "${entry.name}" from your custom list?`)) return;
+  customFoods = customFoods.filter(f => f.id !== id);
+  saveCustom();
+  renderCustomList();
+  buildChips();
+  render();
+  showToast(`"${entry.name}" deleted`, "warn");
+}
+
+function closestHaType(t) {
+  if (t >= 200) return "Brisket";
+  if (t >= 190) return "Beef Ribs";
+  if (t >= 170) return "Chicken Well Done";
+  if (t >= 160) return "Beef Well Done";
+  if (t >= 150) return "Beef Medium Well";
+  if (t >= 145) return "Lean Fish";
+  if (t >= 140) return "Beef Medium";
+  if (t >= 133) return "Beef Medium Rare";
+  if (t >= 125) return "Beef Rare";
+  return "None";
+}
+
+function clearForm() {
+  ["cf-name","cf-time","cf-tip"].forEach(id => document.getElementById(id).value="");
+  ["cf-smoke","cf-smoke-max","cf-target"].forEach(id => document.getElementById(id).value="");
+  document.getElementById("cf-cat").value="";
+}
+
+// ── Render custom manager list ────────────────────────────
+function renderCustomList() {
+  const el = document.getElementById("custom-list-items");
+  if (!customFoods.length) {
+    el.innerHTML = '<div class="empty-custom">No custom entries yet — add one above.</div>';
+    return;
+  }
+  el.innerHTML = customFoods.map(f => `
+    <div class="custom-item">
+      <div class="custom-item-info">
+        <div class="custom-item-name">${f.name} <span style="font-size:11px;color:var(--text3);font-weight:400;">· ${f.cat}</span></div>
+        <div class="custom-item-meta">${f.smoke} · ${f.time} · Internal: ${f.internal}${f.tip ? " · " + f.tip : ""}</div>
+      </div>
+      <button class="custom-item-del" onclick="deleteCustomFood(${f.id})">✕ Delete</button>
+    </div>
+  `).join("");
+}
+
+// ── Build chips (includes Custom if any) ──────────────────
+function buildChips() {
+  const el = document.getElementById("chips");
+  const builtinCats = ["All", ...COOK_DATA.map(d => d.cat)];
+  const hasCustom = customFoods.length > 0;
+  const allCats = hasCustom ? [...builtinCats, "Custom"] : builtinCats;
+
+  // Keep active chip valid
+  if (!allCats.includes(activeCat)) activeCat = "All";
+
+  el.innerHTML = "";
+  allCats.forEach(c => {
+    const ch = document.createElement("button");
+    const isCustomChip = c === "Custom";
+    ch.className = "chip" + (c === activeCat ? " active" : "") + (isCustomChip ? " custom-chip" : "");
+    ch.textContent = c;
+    ch.onclick = () => {
+      activeCat = c;
+      document.querySelectorAll(".chip").forEach(x => x.classList.remove("active"));
+      ch.classList.add("active");
+      render();
+    };
+    el.appendChild(ch);
+  });
+}
+
+// ── HA WebSocket ──────────────────────────────────────────
+function connectHA() {
+  const proto = location.protocol === "https:" ? "wss" : "ws";
+  const host = location.hostname;
+  const port = location.port || (proto === "wss" ? "443" : "8123");
+  try { haWs = new WebSocket(`${proto}://${host}:${port}/api/websocket`); } catch(e){ return; }
+  haWs.onmessage = e => {
+    const msg = JSON.parse(e.data);
+    if (msg.type === "auth_required") {
+      const tok = localStorage.getItem("ha_token");
+      if (tok) { haToken=tok; haWs.send(JSON.stringify({type:"auth",access_token:tok})); }
+      else promptToken();
+    } else if (msg.type === "auth_ok") {
+      haConnected=true;
+      setHaChip(true);
+      document.getElementById("live-badge").style.display="inline";
+      haWs.send(JSON.stringify({id:msgId++,type:"get_states"}));
+      haWs.send(JSON.stringify({id:msgId++,type:"subscribe_events",event_type:"state_changed"}));
+    } else if (msg.type === "auth_invalid") {
+      localStorage.removeItem("ha_token");
+      setHaChip(false,"auth failed — click to re-enter token");
+    } else if (msg.type === "event" && msg.event?.event_type === "state_changed") {
+      const nd = msg.event.data.new_state;
+      if (nd) { stateMap[nd.entity_id]=nd.state; updateProbeCards(); }
+    } else if (msg.type === "result" && Array.isArray(msg.result)) {
+      msg.result.forEach(s => { stateMap[s.entity_id]=s.state; });
+      updateProbeCards();
+    }
+  };
+  haWs.onclose = () => {
+    haConnected=false;
+    document.getElementById("live-badge").style.display="none";
+    setHaChip(false,"HA: disconnected — retrying");
+    setTimeout(connectHA, 6000);
+  };
+  haWs.onerror = () => haWs.close();
+}
+
+function setHaChip(ok, msg) {
+  const el = document.getElementById("ha-chip");
+  el.className = "ha-chip " + (ok ? "ok" : "err");
+  el.textContent = ok ? "HA: connected" : (msg || "HA: disconnected");
+  if (!ok) el.onclick = promptToken;
+}
+
+function promptToken() {
+  const tok = prompt("Paste your HA Long-Lived Access Token\n(Profile → Long-Lived Access Tokens → Create Token)");
+  if (tok) { localStorage.setItem("ha_token",tok); haToken=tok; if(haWs) haWs.close(); connectHA(); }
+}
+
+function callService(domain, service, target, data) {
+  if (!haConnected) return;
+  haWs.send(JSON.stringify({id:msgId++,type:"call_service",domain,service,target:{entity_id:target},service_data:data||{}}));
+}
+
+// ── Probe assign / clear ──────────────────────────────────
+function assign(item, probe) {
+  if (probe===1) probe1Item=item; else probe2Item=item;
+  if (haConnected) {
+    callService("input_select","select_option", probe===1?HA_ENTITIES.p1MeatType:HA_ENTITIES.p2MeatType, {option:item.haType||"None"});
+    if (item.target) callService("input_number","set_value", probe===1?HA_ENTITIES.p1TargetTemp:HA_ENTITIES.p2TargetTemp, {value:item.target});
+    callService("input_boolean","turn_off", probe===1?HA_ENTITIES.p1AlertSent:HA_ENTITIES.p2AlertSent, {});
+    showToast(`Probe ${probe} → ${item.name}${item.target?" ("+item.target+"°F)":""} — sent to HA`);
+  } else {
+    showToast(`Probe ${probe} → ${item.name} (HA offline)`, "warn");
+  }
+  updateProbeCards();
+  render();
+}
+
+function clearProbe(probe) {
+  if (probe===1) { probe1Item=null; callService("input_select","select_option",HA_ENTITIES.p1MeatType,{option:"None"}); }
+  else { probe2Item=null; callService("input_select","select_option",HA_ENTITIES.p2MeatType,{option:"None"}); }
+  updateProbeCards();
+  render();
+}
+
+// ── Probe card display ────────────────────────────────────
+function updateProbeCards() {
+  updateOne(1, probe1Item, HA_ENTITIES.p1Temp, HA_ENTITIES.p1TargetTemp);
+  updateOne(2, probe2Item, HA_ENTITIES.p2Temp, HA_ENTITIES.p2TargetTemp);
+}
+
+function updateOne(n, item, tempEnt, tgtEnt) {
+  const fEl=document.getElementById(`p${n}-food`);
+  const tEl=document.getElementById(`p${n}-temp`);
+  const sEl=document.getElementById(`p${n}-status`);
+  const pWrap=document.getElementById(`p${n}-progress-wrap`);
+  const pBar=document.getElementById(`p${n}-bar`);
+  const clrBtn=document.getElementById(`p${n}-clear`);
+  const curTemp = parseFloat(stateMap[tempEnt]) || null;
+  const target = item ? item.target : null;
+  if (!item) {
+    fEl.className="pcard-empty"; fEl.textContent="No food assigned";
+    tEl.style.display="none"; sEl.textContent=""; pWrap.style.display="none"; clrBtn.style.display="none";
+    return;
+  }
+  fEl.className="pcard-food";
+  fEl.innerHTML=`${item.name}<div class="pcard-detail">${item.smoke} · ${item.time}</div>`;
+  clrBtn.style.display="block";
+  if (curTemp!==null) { tEl.style.display="block"; tEl.textContent=Math.round(curTemp)+"°F"; }
+  else tEl.style.display="none";
+  if (target && curTemp!==null) {
+    pWrap.style.display="block";
+    const pct=Math.min(100,Math.round(((curTemp-32)/(target-32))*100));
+    pBar.style.width=pct+"%";
+    pBar.className="pcard-bar"+(pct>90?" hot":pct>75?" warm":"");
+    const rem=target-curTemp;
+    if (rem<=0) sEl.innerHTML=`<span class="status-done">✓ Ready to pull!</span>`;
+    else if (rem<=10) sEl.innerHTML=`<span class="status-warn">⚠ ${Math.round(rem)}°F to go — almost done!</span>`;
+    else { sEl.textContent=`${Math.round(rem)}°F from target (${target}°F)`; sEl.className="pcard-status"; }
+  } else if (target) {
+    pWrap.style.display="none"; sEl.textContent=`Target: ${target}°F`;
+  } else {
+    pWrap.style.display="none"; sEl.textContent="No internal temp target";
+  }
+}
+
+// ── Table render ──────────────────────────────────────────
+function tclass(smoke) {
+  const s=parseInt(smoke.replace(/[^\d]/,""));
+  return s>=375?"badge-hot":s>=250?"badge-med":"badge-low";
+}
+
+function buildMergedData() {
+  if (!customFoods.length) return COOK_DATA;
+  const merged = COOK_DATA.map(s => ({...s, items:[...s.items]}));
+  // Insert custom items into their matching category
+  customFoods.forEach(cf => {
+    const sec = merged.find(s => s.cat === cf.cat);
+    if (sec) { sec.items.push(cf); }
+    else {
+      const existing = merged.find(s => s.cat === "Custom");
+      if (existing) existing.items.push(cf);
+      else merged.push({cat:"Custom", items:[cf]});
+    }
+  });
+  return merged;
+}
+
+function render() {
+  const allData = buildMergedData();
+  let html="", total=0;
+  allData.forEach(section => {
+    if (activeCat !== "All" && activeCat !== section.cat) return;
+    const items = section.items.filter(i =>
+      !query || i.name.toLowerCase().includes(query) || section.cat.toLowerCase().includes(query)
+    );
+    if (!items.length) return;
+    total += items.length;
+    const isCustomSec = section.cat === "Custom";
+    html += `<div class="section-label">${section.cat}${isCustomSec?'<span class="custom-label-badge">Custom</span>':''}</div>
+    <div class="tbl-wrap"><table>
+    <thead><tr><th>Food</th><th>Smoker temp</th><th>Time</th><th>Internal temp</th><th>Assign to probe</th></tr></thead><tbody>`;
+    items.forEach(item => {
+      const isP1=probe1Item&&probe1Item.name===item.name;
+      const isP2=probe2Item&&probe2Item.name===item.name;
+      const rowClass="row"+(item.custom?" custom-row":"")+(isP1?" sel-p1":isP2?" sel-p2":"");
+      const badgeClass=item.custom?"badge-custom":tclass(item.smoke);
+      const iStr=JSON.stringify(item).replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+      html+=`<tr class="${rowClass}">
+        <td><div class="food-name">${item.name}${item.custom?'<span style="font-size:10px;margin-left:5px;padding:1px 5px;border-radius:8px;background:var(--custom-bg);color:var(--custom-text);">custom</span>':''}</div>${item.tip?`<div class="tip-txt">${item.tip}</div>`:""}</td>
+        <td><span class="badge ${badgeClass}">${item.smoke}</span></td>
+        <td>${item.time}</td>
+        <td class="int-temp">${item.internal}</td>
+        <td><div class="assign-wrap">
+          <button class="abtn p1h" onclick="assignFromBtn('${iStr}',1)">● P1${isP1?" ✓":""}</button>
+          <button class="abtn p2h" onclick="assignFromBtn('${iStr}',2)">● P2${isP2?" ✓":""}</button>
+          ${item.custom?`<button class="del-btn" onclick="deleteCustomFood(${item.id})">✕</button>`:""}
+        </div></td>
+      </tr>`;
+    });
+    html+=`</tbody></table></div>`;
+  });
+  if (!total) html=`<div class="no-results">No results${query?' for "'+query+'"':""}</div>`;
+  document.getElementById("output").innerHTML=html;
+}
+
+window.assignFromBtn = function(iStr, probe) {
+  try { assign(JSON.parse(iStr), probe); } catch(e){ console.error(e); }
+};
+
+// ── Toast ─────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, type) {
+  const t=document.getElementById("toast");
+  t.textContent=msg;
+  t.className=type?"show "+type:"show";
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.className="",2800);
+}
+
+// ── Init ──────────────────────────────────────────────────
+loadCustom();
+buildChips();
+renderCustomList();
+render();
+connectHA();
+document.getElementById("search").oninput = e => { query=e.target.value.toLowerCase(); render(); };
+setInterval(()=>{ if(haConnected) updateProbeCards(); }, 5000);
+</script>
+</body>
+</html>
