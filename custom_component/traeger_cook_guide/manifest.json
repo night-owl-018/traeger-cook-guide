@@ -1,12 +1,12 @@
 {
   "domain": "traeger_cook_guide",
   "name": "Traeger Cook Guide",
-  "version": "1.0.2",
-  "documentation": "https://github.com/night-owl-018/traeger-cook-guide",
-  "issue_tracker": "https://github.com/night-owl-018/traeger-cook-guide/issues",
   "codeowners": ["@night-owl-018"],
-  "requirements": [],
   "dependencies": [],
+  "documentation": "https://github.com/night-owl-018/traeger-cook-guide",
+  "integration_type": "service",
   "iot_class": "local_push",
-  "integration_type": "service"
+  "issue_tracker": "https://github.com/night-owl-018/traeger-cook-guide/issues",
+  "requirements": [],
+  "version": "1.0.4"
 }
