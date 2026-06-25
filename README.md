@@ -33,7 +33,7 @@ When you click **Submit** in the integration setup:
 ### Step 1 — Add to HACS (one time)
 
 1. In HA, go to **HACS → ⋮ menu (top right) → Custom repositories**
-2. Repository URL: `https://github.com/YOUR_GITHUB_USERNAME/traeger-cook-guide`
+2. Repository URL: `https://github.com/night-owl-018/traeger-cook-guide`
 3. Category: **Integration** → Click **Add**
 4. Search HACS for **Traeger Cook Guide** → **Download** → **Restart Home Assistant**
 
