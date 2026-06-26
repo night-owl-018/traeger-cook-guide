@@ -609,15 +609,15 @@ function render() {
       const isP2=probe2Item&&probe2Item.name===item.name;
       const rowClass="row"+(item.custom?" custom-row":"")+(isP1?" sel-p1":isP2?" sel-p2":"");
       const badgeClass=item.custom?"badge-custom":tclass(item.smoke);
-      const iStr=JSON.stringify(item).replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+      const idx=_itemRegistry.length; _itemRegistry.push(item);
       html+=`<tr class="${rowClass}">
         <td><div class="food-name">${item.name}${item.custom?'<span style="font-size:10px;margin-left:5px;padding:1px 5px;border-radius:8px;background:var(--custom-bg);color:var(--custom-text);">custom</span>':''}</div>${item.tip?`<div class="tip-txt">${item.tip}</div>`:""}</td>
         <td><span class="badge ${badgeClass}">${item.smoke}</span></td>
         <td>${item.time}</td>
         <td class="int-temp">${item.internal}</td>
         <td><div class="assign-wrap">
-          <button class="abtn p1h" onclick="assignFromBtn('${iStr}',1)">● P1${isP1?" ✓":""}</button>
-          <button class="abtn p2h" onclick="assignFromBtn('${iStr}',2)">● P2${isP2?" ✓":""}</button>
+          <button class="abtn p1h" onclick="assignFromIdx(${idx},1)">● P1${isP1?" ✓":""}</button>
+          <button class="abtn p2h" onclick="assignFromIdx(${idx},2)">● P2${isP2?" ✓":""}</button>
           ${item.custom?`<button class="del-btn" onclick="deleteCustomFood(${item.id})">✕</button>`:""}
         </div></td>
       </tr>`;
@@ -628,8 +628,10 @@ function render() {
   document.getElementById("output").innerHTML=html;
 }
 
-window.assignFromBtn = function(iStr, probe) {
-  try { assign(JSON.parse(iStr), probe); } catch(e){ console.error(e); }
+let _itemRegistry = [];
+window.assignFromIdx = function(idx, probe) {
+  const item = _itemRegistry[idx];
+  if (item) assign(item, probe);
 };
 
 // ── Toast ─────────────────────────────────────────────────
