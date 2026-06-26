@@ -451,6 +451,14 @@ function buildChips() {
 }
 
 // ── HA WebSocket ──────────────────────────────────────────
+// ── PERMANENT TOKEN ──────────────────────────────────────
+// Option A (recommended): leave empty — you will be prompted once
+//   per browser and the token is saved to localStorage automatically.
+// Option B: paste your token here to hardcode it for ALL devices:
+//   const HA_TOKEN = "eyJ0eXAiOiJKV1Qi...your_full_token";
+const HA_TOKEN = "";
+// ─────────────────────────────────────────────────────────
+
 function connectHA() {
   const proto = location.protocol === "https:" ? "wss" : "ws";
   const host = location.hostname;
@@ -459,7 +467,7 @@ function connectHA() {
   haWs.onmessage = e => {
     const msg = JSON.parse(e.data);
     if (msg.type === "auth_required") {
-      const tok = localStorage.getItem("ha_token");
+      const tok = HA_TOKEN || localStorage.getItem("ha_token");
       if (tok) { haToken=tok; haWs.send(JSON.stringify({type:"auth",access_token:tok})); }
       else promptToken();
     } else if (msg.type === "auth_ok") {
@@ -496,8 +504,18 @@ function setHaChip(ok, msg) {
 }
 
 function promptToken() {
-  const tok = prompt("Paste your HA Long-Lived Access Token\n(Profile → Long-Lived Access Tokens → Create Token)");
-  if (tok) { localStorage.setItem("ha_token",tok); haToken=tok; if(haWs) haWs.close(); connectHA(); }
+  const tok = prompt(
+    "Paste your HA Long-Lived Access Token\n" +
+    "(HA → Profile → Long-Lived Access Tokens → Create Token)\n\n" +
+    "Once entered it is saved permanently in this browser and all future sessions on this device."
+  );
+  if (!tok || !tok.trim()) return;
+  const clean = tok.trim();
+  localStorage.setItem("ha_token", clean);
+  haToken = clean;
+  showToast("Token saved — connecting to HA...");
+  if (haWs) haWs.close();
+  connectHA();
 }
 
 function callService(domain, service, target, data) {
