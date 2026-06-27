@@ -2,25 +2,25 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Traeger Cook Guide</title>
 <style>
 :root{
-  --bg:#fff;--bg2:#f7f7f5;--bg3:#ebebea;
+  --bg:#ffffff;--bg2:#f2f2f0;--bg3:#e8e8e6;
   --text:#1a1a1a;--text2:#666;--text3:#aaa;
-  --border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.18);
-  --rad:8px;--rad-lg:12px;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.15);
+  --rad:10px;--rad-lg:14px;
   --green-bg:#EAF3DE;--green-text:#3B6D11;--green-border:#97C459;
   --blue-bg:#E6F1FB;--blue-text:#185FA5;--blue-border:#85B7EB;
   --amber-bg:#FAEEDA;--amber-text:#854F0B;--amber-border:#EF9F27;
-  --red-bg:#FAECE7;--red-text:#993C1D;--red-border:#F09595;
+  --red-bg:#FAECE7;--red-text:#993C1D;--red-border:#E24B4A;
   --success:#1D9E75;--danger:#E24B4A;--accent:#03a9f4;
   --custom-bg:#EEEDFE;--custom-text:#3C3489;--custom-border:#AFA9EC;
 }
 @media(prefers-color-scheme:dark){:root{
   --bg:#1c1c1e;--bg2:#2c2c2e;--bg3:#3a3a3c;
   --text:#f5f5f5;--text2:#aaa;--text3:#666;
-  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.16);
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.14);
   --green-bg:#1a2e10;--green-text:#97C459;--green-border:#3B6D11;
   --blue-bg:#0c2240;--blue-text:#85B7EB;--blue-border:#185FA5;
   --amber-bg:#2e1f05;--amber-text:#FAC775;--amber-border:#854F0B;
@@ -28,124 +28,131 @@
   --custom-bg:#26215C;--custom-text:#AFA9EC;--custom-border:#534AB7;
 }}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:14px;padding:12px;max-width:600px;margin:0 auto;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:14px;padding:12px;max-width:560px;margin:0 auto;}
 
-/* Header */
+/* ── Header ── */
 .hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-h1{font-size:16px;font-weight:500;display:flex;align-items:center;gap:6px;}
+h1{font-size:16px;font-weight:600;display:flex;align-items:center;gap:6px;}
 .live{font-size:10px;padding:1px 6px;background:var(--danger);color:#fff;border-radius:10px;animation:pulse 1.5s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.ha-chip{font-size:11px;padding:3px 10px;border-radius:20px;border:0.5px solid var(--border2);background:var(--bg2);color:var(--text2);cursor:pointer;white-space:nowrap;}
+.ha-chip{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);cursor:pointer;white-space:nowrap;}
 .ha-chip.ok{border-color:var(--green-border);background:var(--green-bg);color:var(--green-text);}
-.ha-chip.err{border-color:var(--danger);background:var(--red-bg);color:var(--red-text);}
+.ha-chip.err{border-color:var(--red-border);background:var(--red-bg);color:var(--red-text);}
 
-/* Device grid — 3 col, wraps to 2 rows */
-.device-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:10px;}
-.dpill{display:flex;align-items:center;gap:5px;padding:5px 8px;border-radius:var(--rad);font-size:11px;border:0.5px solid var(--border2);background:var(--bg2);color:var(--text2);}
-.dpill svg{width:13px;height:13px;stroke:currentColor;fill:none;flex-shrink:0;}
-.dpill-val{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.dpill.ok{background:var(--green-bg);color:var(--green-text);border-color:var(--green-border);}
-.dpill.warn{background:var(--amber-bg);color:var(--amber-text);border-color:var(--amber-border);}
-.dpill.bad{background:var(--red-bg);color:var(--red-text);border-color:var(--red-border);}
-.dpill.charging{background:var(--blue-bg);color:var(--blue-text);border-color:var(--blue-border);}
+/* ── Device status — 3 col grid, wraps ── */
+.dev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:10px;}
+.dpill{display:flex;flex-direction:column;gap:1px;padding:7px 9px;border-radius:var(--rad);border:1px solid var(--border2);background:var(--bg2);}
+.dpill.ok{background:var(--green-bg);border-color:var(--green-border);}
+.dpill.warn{background:var(--amber-bg);border-color:var(--amber-border);}
+.dpill.bad{background:var(--red-bg);border-color:var(--red-border);}
+.dpill.charging{background:var(--blue-bg);border-color:var(--blue-border);}
+.dpill-label{font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);}
+.dpill.ok .dpill-label{color:var(--green-text);opacity:.7;}
+.dpill.warn .dpill-label{color:var(--amber-text);opacity:.7;}
+.dpill.bad .dpill-label{color:var(--red-text);opacity:.7;}
+.dpill.charging .dpill-label{color:var(--blue-text);opacity:.7;}
+.dpill-val{font-size:13px;font-weight:600;color:var(--text);}
+.dpill.ok .dpill-val{color:var(--green-text);}
+.dpill.warn .dpill-val{color:var(--amber-text);}
+.dpill.bad .dpill-val{color:var(--red-text);}
+.dpill.charging .dpill-val{color:var(--blue-text);}
 
-/* Probe cards */
-.probes{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}
-.pc{background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--rad-lg);padding:9px 11px;position:relative;}
-.pc.p1{border-left:2px solid var(--green-border);}
-.pc.p2{border-left:2px solid var(--blue-border);}
-.pc-lbl{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:3px;}
-.pc-food{font-size:12px;font-weight:500;line-height:1.3;}
+/* ── Probe cards ── */
+.probes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.pc{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rad-lg);padding:10px 12px;position:relative;}
+.pc.p1{border-left:3px solid var(--green-border);}
+.pc.p2{border-left:3px solid var(--blue-border);}
+.pc-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:4px;}
+.pc-food{font-size:13px;font-weight:600;line-height:1.3;padding-right:28px;}
 .pc-detail{font-size:10px;color:var(--text2);margin-top:1px;}
-.pc-temp{font-size:20px;font-weight:500;color:var(--accent);margin:3px 0 1px;line-height:1.1;}
-.pc-stat{font-size:10px;margin-top:2px;}
-.st-warn{color:#BA7517;font-weight:500;}
-.st-done{color:var(--success);font-weight:500;}
-.pc-bar{height:2px;background:var(--bg3);border-radius:1px;margin-top:5px;overflow:hidden;}
-.pc-fill{height:2px;border-radius:1px;background:var(--success);transition:width .8s;}
+.pc-temp{font-size:22px;font-weight:700;color:var(--accent);margin:4px 0 1px;line-height:1.1;}
+.pc-stat{font-size:11px;margin-top:2px;}
+.st-warn{color:#BA7517;font-weight:600;}
+.st-done{color:var(--success);font-weight:600;}
+.pc-bar{height:3px;background:var(--bg3);border-radius:2px;margin-top:6px;overflow:hidden;}
+.pc-fill{height:3px;border-radius:2px;background:var(--success);transition:width .8s;}
 .pc-fill.warm{background:#EF9F27;}
 .pc-fill.hot{background:var(--danger);}
-.pc-empty{font-size:11px;color:var(--text3);font-style:italic;}
-.pc-clear{position:absolute;top:7px;right:9px;font-size:11px;color:var(--danger);background:none;border:none;cursor:pointer;padding:0;line-height:1;}
+.pc-empty{font-size:12px;color:var(--text3);font-style:italic;}
+.pc-clear{position:absolute;top:8px;right:10px;font-size:13px;color:var(--danger);background:none;border:none;cursor:pointer;padding:2px;line-height:1;}
 
-/* Search */
+/* ── Search ── */
 .search-wrap{position:relative;margin-bottom:8px;}
-.search-wrap svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--text3);fill:none;pointer-events:none;}
-input[type=text]{width:100%;padding:7px 9px 7px 30px;font-size:13px;font-family:inherit;border:0.5px solid var(--border2);border-radius:var(--rad);background:var(--bg);color:var(--text);outline:none;}
-input[type=text]:focus{border-color:var(--accent);}
-input[type=number],select{font-family:inherit;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--rad);background:var(--bg);color:var(--text);outline:none;padding:6px 9px;width:100%;}
-select{cursor:pointer;}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;stroke:var(--text3);fill:none;pointer-events:none;}
+input[type=text]{width:100%;padding:9px 10px 9px 32px;font-size:14px;font-family:inherit;border:1px solid var(--border2);border-radius:var(--rad);background:var(--bg2);color:var(--text);outline:none;-webkit-appearance:none;}
+input[type=text]:focus{border-color:var(--accent);background:var(--bg);}
+input[type=number],select{font-family:inherit;font-size:13px;border:1px solid var(--border2);border-radius:var(--rad);background:var(--bg2);color:var(--text);outline:none;padding:7px 10px;width:100%;-webkit-appearance:none;}
 
-/* Category chips — wrap naturally */
-.chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
-.chip{padding:3px 11px;border-radius:20px;font-size:12px;cursor:pointer;border:0.5px solid var(--border2);background:var(--bg2);color:var(--text2);user-select:none;}
+/* ── Chips — wrap ── */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.chip{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);user-select:none;-webkit-tap-highlight-color:transparent;}
 .chip.active{background:var(--accent);color:#fff;border-color:var(--accent);}
 .chip.custom-chip{border-color:var(--custom-border);color:var(--custom-text);background:var(--custom-bg);}
 .chip.custom-chip.active{background:var(--custom-text);color:#fff;}
 
-/* Food list */
-.sec-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin:10px 0 4px;padding-left:2px;}
-.food-list{display:flex;flex-direction:column;}
-.food-row{display:flex;align-items:center;gap:8px;padding:8px;border-radius:var(--rad);cursor:pointer;transition:background .1s;}
-.food-row:hover{background:var(--bg2);}
+/* ── Food list — no table, pure rows ── */
+.sec-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin:12px 0 5px;padding-left:2px;}
+.food-list{display:flex;flex-direction:column;gap:2px;}
+
+.food-row{display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:var(--rad);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .1s;}
+.food-row:active{background:var(--bg2);}
 .food-row.sel-p1{background:var(--green-bg);}
 .food-row.sel-p2{background:var(--blue-bg);}
 .food-row.is-open{background:var(--bg2);border-radius:var(--rad) var(--rad) 0 0;}
 .food-row.sel-p1.is-open{background:var(--green-bg);}
 .food-row.sel-p2.is-open{background:var(--blue-bg);}
-.food-row.custom-row{border-left:2px solid var(--custom-border);padding-left:6px;}
-.fn-wrap{flex:1;min-width:0;}
-.fn{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.fn-tip{font-size:11px;color:var(--text3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.badge{padding:2px 6px;border-radius:6px;font-size:11px;font-weight:500;white-space:nowrap;flex-shrink:0;}
-.badge-hot{background:var(--red-bg);color:var(--red-text);}
-.badge-med{background:var(--amber-bg);color:var(--amber-text);}
-.badge-low{background:var(--green-bg);color:var(--green-text);}
-.badge-custom{background:var(--custom-bg);color:var(--custom-text);}
-.abtns{display:flex;gap:3px;flex-shrink:0;}
-.abtn{padding:3px 9px;font-size:11px;font-weight:500;border:0.5px solid var(--border2);border-radius:6px;cursor:pointer;background:var(--bg2);color:var(--text2);}
+.food-row.custom-row{border-left:2px solid var(--custom-border);padding-left:8px;}
+
+/* Food name — takes all space */
+.fn{flex:1;min-width:0;}
+.fn-name{font-size:14px;font-weight:500;line-height:1.3;}
+.fn-tip{font-size:11px;color:var(--text3);margin-top:1px;}
+
+/* P1/P2 buttons — always visible, right side */
+.abtns{display:flex;gap:5px;flex-shrink:0;}
+.abtn{padding:6px 12px;font-size:12px;font-weight:600;border:1px solid var(--border2);border-radius:8px;cursor:pointer;background:var(--bg2);color:var(--text2);-webkit-tap-highlight-color:transparent;white-space:nowrap;}
 .abtn.p1a{background:var(--green-bg);color:var(--green-text);border-color:var(--green-border);}
 .abtn.p2a{background:var(--blue-bg);color:var(--blue-text);border-color:var(--blue-border);}
-.del-btn{padding:3px 7px;font-size:11px;border:0.5px solid rgba(226,75,74,.25);border-radius:6px;cursor:pointer;background:none;color:var(--danger);}
+.del-btn{padding:5px 8px;font-size:12px;border:1px solid rgba(226,75,74,.2);border-radius:8px;cursor:pointer;background:none;color:var(--danger);}
 
-/* Expanded detail */
-.food-detail{display:none;background:var(--bg2);border-radius:0 0 var(--rad) var(--rad);padding:8px 10px 10px;border-top:0.5px solid var(--border);}
+/* Expand detail — shows on tap */
+.food-detail{display:none;background:var(--bg2);border-radius:0 0 var(--rad) var(--rad);padding:10px 12px 12px;border-top:1px solid var(--border);}
 .food-detail.open{display:block;}
-.det-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.det-row{display:flex;gap:12px;margin-bottom:4px;}
+.det-item{flex:1;}
 .det-item .dl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:2px;}
-.det-item .dv{font-size:13px;font-weight:500;}
-.det-tip{margin-top:7px;font-size:12px;color:var(--text2);font-style:italic;padding-top:6px;border-top:0.5px solid var(--border);}
+.det-item .dv{font-size:14px;font-weight:600;}
+.det-tip{font-size:12px;color:var(--text2);font-style:italic;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
 
-.no-results{text-align:center;color:var(--text3);padding:2rem;font-size:13px;}
+.no-results{text-align:center;color:var(--text3);padding:2rem;font-size:14px;}
 
-/* Custom food builder */
-.add-section{margin-top:16px;padding-top:14px;border-top:0.5px solid var(--border2);}
-.add-toggle{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;cursor:pointer;user-select:none;padding:4px 0;}
+/* ── Custom builder ── */
+.add-section{margin-top:16px;padding-top:14px;border-top:1px solid var(--border2);}
+.add-toggle{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:500;cursor:pointer;user-select:none;padding:4px 0;-webkit-tap-highlight-color:transparent;}
 .add-toggle .ch{font-size:12px;color:var(--text3);transition:transform .2s;margin-left:auto;}
 .add-toggle.open .ch{transform:rotate(180deg);}
 .add-body{display:none;margin-top:10px;}
 .add-body.open{display:block;}
-.add-form{background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--rad-lg);padding:12px;}
-.fgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px;}
+.add-form{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rad-lg);padding:14px;}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
 .fgrid .full{grid-column:1/-1;}
-.field{display:flex;flex-direction:column;gap:3px;}
-.field label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);}
+.field{display:flex;flex-direction:column;gap:4px;}
+.field label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);}
 .fbottom{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;}
 .field.grow{flex:1;min-width:160px;}
-.add-btn{padding:7px 16px;font-size:13px;font-weight:500;border:none;border-radius:var(--rad);background:var(--accent);color:#fff;cursor:pointer;flex-shrink:0;}
+.add-btn{padding:9px 18px;font-size:14px;font-weight:600;border:none;border-radius:var(--rad);background:var(--accent);color:#fff;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
 .form-hint{font-size:11px;color:var(--text3);margin-top:6px;}
-.custom-list{margin-top:12px;}
-.custom-list-hdr{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:5px;}
-.ci{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:var(--rad);border:0.5px solid var(--border);background:var(--bg);margin-bottom:4px;}
+.cl-hdr{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin:12px 0 5px;}
+.ci{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--rad);border:1px solid var(--border);background:var(--bg);margin-bottom:4px;}
 .ci-info{flex:1;font-size:12px;}
-.ci-name{font-weight:500;}
+.ci-name{font-weight:600;}
 .ci-meta{font-size:11px;color:var(--text2);margin-top:1px;}
-.ci-del{padding:2px 8px;font-size:11px;border:0.5px solid rgba(226,75,74,.25);border-radius:5px;cursor:pointer;background:none;color:var(--danger);}
-.empty-custom{font-size:12px;color:var(--text3);font-style:italic;padding:6px 0;}
+.ci-del{padding:4px 10px;font-size:11px;border:1px solid rgba(226,75,74,.2);border-radius:6px;cursor:pointer;background:none;color:var(--danger);}
+.empty-c{font-size:12px;color:var(--text3);font-style:italic;padding:6px 0;}
 
-/* Toast */
-#toast{position:fixed;bottom:14px;right:14px;background:var(--success);color:#fff;padding:8px 14px;border-radius:var(--rad-lg);font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;transform:translateY(5px);z-index:999;}
-#toast.show{opacity:1;transform:translateY(0);}
+/* ── Toast ── */
+#toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%) translateY(10px);background:#1a1a1a;color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:999;white-space:nowrap;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 #toast.warn{background:#BA7517;}
 #toast.err{background:var(--danger);}
 </style>
@@ -153,31 +160,39 @@ select{cursor:pointer;}
 <body>
 
 <div class="hdr">
-  <h1>🔥 Traeger Cook Guide <span id="live-badge" class="live" style="display:none;">LIVE</span></h1>
+  <h1>🔥 Traeger <span id="live-badge" class="live" style="display:none;">LIVE</span></h1>
   <span id="ha-chip" class="ha-chip err" onclick="promptToken()">HA: connecting…</span>
 </div>
 
-<!-- Device status grid — 3 col, wraps, no scroll -->
-<div class="device-grid">
+<!-- Device status — 6 pills in 3-col grid, wraps to 2 rows -->
+<div class="dev-grid">
   <div class="dpill" id="ds-conn">
-    <svg viewBox="0 0 24 24" stroke-width="2"><path d="M8.56 2.9A7 7 0 0 1 19 9v4"/><path d="M10.46 5.6A3.5 3.5 0 0 1 15.5 9v3.5"/><line x1="2" y1="2" x2="22" y2="22"/><path d="M12 9v4"/><path d="M12 18h.01"/></svg>
-    <span class="dpill-val">—</span>
+    <div class="dpill-label">Connection</div>
+    <div class="dpill-val" id="ds-conn-v">—</div>
   </div>
   <div class="dpill" id="ds-chrg">
-    <svg viewBox="0 0 24 24" stroke-width="2"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M20 11h2v4h-2"/><path d="M10 11v4m-2-2h4"/></svg>
-    <span class="dpill-val">—</span>
+    <div class="dpill-label">Charging</div>
+    <div class="dpill-val" id="ds-chrg-v">—</div>
   </div>
   <div class="dpill" id="ds-base">
-    <svg viewBox="0 0 24 24" stroke-width="2"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M20 11h2v4h-2"/></svg>
-    <span class="dpill-val">Base —</span>
+    <div class="dpill-label">Base battery</div>
+    <div class="dpill-val" id="ds-base-v">—</div>
   </div>
   <div class="dpill" id="ds-p1b">
-    <svg viewBox="0 0 24 24" stroke-width="2"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M20 11h2v4h-2"/></svg>
-    <span class="dpill-val">P1 —</span>
+    <div class="dpill-label">P1 battery</div>
+    <div class="dpill-val" id="ds-p1b-v">—</div>
+  </div>
+  <div class="dpill" id="ds-p1t">
+    <div class="dpill-label">P1 temp</div>
+    <div class="dpill-val" id="ds-p1t-v">—</div>
   </div>
   <div class="dpill" id="ds-p2b">
-    <svg viewBox="0 0 24 24" stroke-width="2"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M20 11h2v4h-2"/></svg>
-    <span class="dpill-val">P2 —</span>
+    <div class="dpill-label">P2 battery</div>
+    <div class="dpill-val" id="ds-p2b-v">—</div>
+  </div>
+  <div class="dpill" id="ds-p2t">
+    <div class="dpill-label">P2 temp</div>
+    <div class="dpill-val" id="ds-p2t-v">—</div>
   </div>
 </div>
 
@@ -207,13 +222,13 @@ select{cursor:pointer;}
   <input type="text" id="search" placeholder="Search food…">
 </div>
 
-<!-- Category chips -->
+<!-- Chips -->
 <div class="chips" id="chips"></div>
 
 <!-- Food list -->
 <div id="output"></div>
 
-<!-- Custom food builder -->
+<!-- Custom builder -->
 <div class="add-section">
   <div class="add-toggle" id="add-toggle" onclick="toggleAdd()">
     ➕ Add custom food
@@ -241,8 +256,8 @@ select{cursor:pointer;}
           <input type="number" id="cf-smoke" placeholder="225" min="100" max="600">
         </div>
         <div class="field">
-          <label>Temp max</label>
-          <input type="number" id="cf-smoke-max" placeholder="250 (opt)" min="100" max="600">
+          <label>Temp max (opt)</label>
+          <input type="number" id="cf-smoke-max" placeholder="250" min="100" max="600">
         </div>
         <div class="field">
           <label>Cook time</label>
@@ -262,10 +277,8 @@ select{cursor:pointer;}
       </div>
       <div class="form-hint">* Required. Target temp wires directly to your probe in HA.</div>
     </div>
-    <div class="custom-list">
-      <div class="custom-list-hdr">Saved custom entries</div>
-      <div id="custom-list"></div>
-    </div>
+    <div class="cl-hdr">Saved custom entries</div>
+    <div id="custom-list"></div>
   </div>
 </div>
 
@@ -281,7 +294,7 @@ const COOK_DATA=[
     {name:"Tri-tip",smoke:"225°F",time:"1.5–2 hrs",internal:"135°F",tip:"Sear after smoke",target:135,haType:"Beef Medium Rare"},
     {name:"Chuck roast",smoke:"250°F",time:"8–10 hrs",internal:"205°F",tip:"Wrap at 165°F",target:205,haType:"Beef Ribs"},
     {name:"Burgers",smoke:"375–400°F",time:"25–30 min",internal:"160°F",tip:"",target:160,haType:"Beef Well Done"},
-    {name:"Steaks (ribeye/NY strip)",smoke:"225°F then 450°F",time:"45–60 min",internal:"130–135°F",tip:"Reverse sear",target:133,haType:"Beef Medium Rare"},
+    {name:"Steaks (ribeye/NY strip)",smoke:"225°F → 450°F",time:"45–60 min",internal:"130–135°F",tip:"Reverse sear",target:133,haType:"Beef Medium Rare"},
     {name:"Meatloaf",smoke:"250°F",time:"3–4 hrs",internal:"160°F",tip:"",target:160,haType:"Beef Well Done"},
     {name:"Beef jerky",smoke:"180°F",time:"4–6 hrs",internal:"—",tip:"Slice thin, marinate",target:null,haType:"None"},
   ]},
@@ -303,7 +316,7 @@ const COOK_DATA=[
     {name:"Spatchcock chicken",smoke:"375°F",time:"1.5–2 hrs",internal:"165°F",tip:"Crispier skin",target:165,haType:"Chicken Well Done"},
     {name:"Chicken thighs",smoke:"275°F",time:"1.5–2 hrs",internal:"175°F",tip:"Higher temp = better skin",target:175,haType:"Chicken Well Done"},
     {name:"Chicken breasts",smoke:"225°F",time:"1–1.5 hrs",internal:"165°F",tip:"Brine first",target:165,haType:"Chicken Breast"},
-    {name:"Chicken wings",smoke:"250°F then 425°F",time:"2 hrs + 15 min",internal:"175°F",tip:"Crank heat at end",target:175,haType:"Chicken Well Done"},
+    {name:"Chicken wings",smoke:"250°F → 425°F",time:"2 hrs + 15 min",internal:"175°F",tip:"Crank heat at end",target:175,haType:"Chicken Well Done"},
     {name:"Whole turkey",smoke:"275°F",time:"4–8 hrs",internal:"165°F",tip:"Spatchcock for even cook",target:165,haType:"Chicken Well Done"},
     {name:"Turkey breast",smoke:"250°F",time:"3–4 hrs",internal:"165°F",tip:"",target:165,haType:"Chicken Well Done"},
     {name:"Duck (whole)",smoke:"275°F",time:"3–4 hrs",internal:"165°F",tip:"Score skin to render fat",target:165,haType:"Chicken Well Done"},
@@ -372,11 +385,11 @@ let p1Item=null,p2Item=null,activeCat="All",query="",openIdx=null;
 let customFoods=[],_reg=[];
 const LS_KEY="traeger_custom_v2";
 
-// ── PERMANENT TOKEN ──────────────────────────────────────
-// Leave empty ("") to be prompted once per browser.
-// Or paste token here to skip the prompt on ALL devices:
+// ── PERMANENT TOKEN ────────────────────────────────────
+// Leave empty to be prompted once per browser.
+// Paste token here to skip prompt on ALL devices:
 const HA_TOKEN="";
-// ─────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────────────
 
 function loadCustom(){try{customFoods=JSON.parse(localStorage.getItem(LS_KEY))||[];}catch{customFoods=[];}}
 function saveCustom(){localStorage.setItem(LS_KEY,JSON.stringify(customFoods));}
@@ -385,9 +398,8 @@ function connectHA(){
   const proto=location.protocol==="https:"?"wss":"ws";
   const host=location.hostname;
   const port=location.port||(proto==="wss"?"443":"8123");
-  const url=`${proto}://${host}:${port}/api/websocket`;
-  console.debug("[Traeger] WS:",url);
-  try{haWs=new WebSocket(url);}catch(e){return;}
+  console.debug("[Traeger] WS:",`${proto}://${host}:${port}/api/websocket`);
+  try{haWs=new WebSocket(`${proto}://${host}:${port}/api/websocket`);}catch(e){return;}
   haWs.onmessage=e=>{
     const m=JSON.parse(e.data);
     if(m.type==="auth_required"){
@@ -461,26 +473,39 @@ function updateDevice(){
   const base=parseFloat(states[ENT.base]);
   const p1b=parseFloat(states[ENT.p1B]);
   const p2b=parseFloat(states[ENT.p2B]);
+  const p1t=parseFloat(states[ENT.p1T]);
+  const p2t=parseFloat(states[ENT.p2T]);
 
   function bc(p){return p>=60?"ok":p>=30?"warn":"bad";}
 
+  // Connection
   const ce=document.getElementById("ds-conn");
-  if(conn!==undefined){
-    ce.querySelector(".dpill-val").textContent=conn==="on"?"Connected":"Disconnected";
-    ce.className="dpill "+(conn==="on"?"ok":"bad");
-  }
+  const cev=document.getElementById("ds-conn-v");
+  if(conn!==undefined){cev.textContent=conn==="on"?"Connected":"Disconnected";ce.className="dpill "+(conn==="on"?"ok":"bad");}
+
+  // Charging
   const che=document.getElementById("ds-chrg");
-  if(chrg!==undefined){
-    che.querySelector(".dpill-val").textContent=chrg==="on"?"Charging":"Not charging";
-    che.className="dpill "+(chrg==="on"?"charging":"");
+  const chev=document.getElementById("ds-chrg-v");
+  if(chrg!==undefined){chev.textContent=chrg==="on"?"Yes":"No";che.className="dpill "+(chrg==="on"?"charging":"");}
+
+  // Batteries
+  function setBat(pillId,valId,label,pct){
+    const pill=document.getElementById(pillId);
+    const val=document.getElementById(valId);
+    if(!isNaN(pct)){val.textContent=Math.round(pct)+"%";pill.className="dpill "+bc(pct);}
   }
-  function setbat(id,label,pct){
-    const el=document.getElementById(id);
-    if(!isNaN(pct)){el.querySelector(".dpill-val").textContent=`${label} ${Math.round(pct)}%`;el.className="dpill "+bc(pct);}
-  }
-  setbat("ds-base","Base",base);
-  setbat("ds-p1b","P1",p1b);
-  setbat("ds-p2b","P2",p2b);
+  setBat("ds-base","ds-base-v","Base",base);
+  setBat("ds-p1b","ds-p1b-v","P1",p1b);
+  setBat("ds-p2b","ds-p2b-v","P2",p2b);
+
+  // Probe temps in device bar
+  const p1tp=document.getElementById("ds-p1t");
+  const p1tv=document.getElementById("ds-p1t-v");
+  if(!isNaN(p1t)){p1tv.textContent=Math.round(p1t)+"°F";p1tp.className="dpill";}
+
+  const p2tp=document.getElementById("ds-p2t");
+  const p2tv=document.getElementById("ds-p2t-v");
+  if(!isNaN(p2t)){p2tv.textContent=Math.round(p2t)+"°F";p2tp.className="dpill";}
 }
 
 function updateProbes(){
@@ -547,12 +572,12 @@ function render(){
       const idx=_reg.length;_reg.push(item);
       const isOpen=openIdx===idx;
       const rc="food-row"+(item.custom?" custom-row":"")+(isP1?" sel-p1":isP2?" sel-p2":"")+(isOpen?" is-open":"");
-      html+=`<div class="${rc}" id="fr-${idx}" onclick="toggleRow(${idx})">
-        <div class="fn-wrap">
-          <div class="fn">${item.name}${item.custom?'<span style="font-size:10px;margin-left:5px;padding:1px 5px;border-radius:5px;background:var(--custom-bg);color:var(--custom-text);">custom</span>':''}</div>
+      html+=`
+      <div class="${rc}" id="fr-${idx}" onclick="toggleRow(${idx})">
+        <div class="fn">
+          <div class="fn-name">${item.name}${item.custom?'<span style="font-size:10px;margin-left:5px;padding:1px 5px;border-radius:5px;background:var(--custom-bg);color:var(--custom-text);">custom</span>':''}</div>
           ${item.tip?`<div class="fn-tip">${item.tip}</div>`:''}
         </div>
-        <span class="badge ${item.custom?"badge-custom":tc(item.smoke)}">${item.smoke}</span>
         <div class="abtns" onclick="event.stopPropagation()">
           <button class="abtn${isP1?" p1a":""}" onclick="assignFromIdx(${idx},1)">P1${isP1?" ✓":""}</button>
           <button class="abtn${isP2?" p2a":""}" onclick="assignFromIdx(${idx},2)">P2${isP2?" ✓":""}</button>
@@ -560,12 +585,12 @@ function render(){
         </div>
       </div>
       <div class="food-detail${isOpen?" open":""}" id="fd-${idx}">
-        <div class="det-grid">
-          <div class="det-item"><div class="dl">Smoker</div><div class="dv">${item.smoke}</div></div>
-          <div class="det-item"><div class="dl">Time</div><div class="dv">${item.time}</div></div>
-          <div class="det-item"><div class="dl">Internal</div><div class="dv">${item.internal}</div></div>
+        <div class="det-row">
+          <div class="det-item"><div class="dl">Smoker temp</div><div class="dv">${item.smoke}</div></div>
+          <div class="det-item"><div class="dl">Cook time</div><div class="dv">${item.time}</div></div>
+          <div class="det-item"><div class="dl">Internal temp</div><div class="dv">${item.internal}</div></div>
         </div>
-        ${item.tip?`<div class="det-tip">${item.tip}</div>`:''}
+        ${item.tip?`<div class="det-tip">💡 ${item.tip}</div>`:''}
       </div>`;
     });
     html+=`</div>`;
@@ -575,8 +600,7 @@ function render(){
 }
 
 function toggleRow(idx){
-  if(openIdx===idx){openIdx=null;}
-  else{openIdx=idx;}
+  openIdx=openIdx===idx?null:idx;
   render();
 }
 
@@ -631,7 +655,7 @@ function closestHaType(t){
 
 function renderCustomList(){
   const el=document.getElementById("custom-list");
-  if(!customFoods.length){el.innerHTML='<div class="empty-custom">No custom entries yet.</div>';return;}
+  if(!customFoods.length){el.innerHTML='<div class="empty-c">No custom entries yet.</div>';return;}
   el.innerHTML=customFoods.map(f=>`
     <div class="ci">
       <div class="ci-info">
