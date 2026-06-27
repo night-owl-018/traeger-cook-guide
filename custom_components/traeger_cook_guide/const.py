@@ -1,7 +1,7 @@
 """Constants for Traeger Cook Guide."""
 
 DOMAIN = "traeger_cook_guide"
-VERSION = "1.1.2"
+VERSION = "1.3.0"
 
 # ESPHome BT proxy entity IDs — must match your ESPHome config
 ENTITY_PROBE_1_TEMP    = "sensor.bt_proxy_hopepop_probe_1_temp"
