@@ -5,284 +5,283 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Traeger Cook Guide</title>
 <style>
-:root {
-  --bg:#ffffff;--bg2:#f7f7f5;--bg3:#f0eeea;
-  --text:#1a1a1a;--text2:#6b6b6b;--text3:#aaa;
-  --border:rgba(0,0,0,0.11);--border2:rgba(0,0,0,0.2);
+:root{
+  --bg:#fff;--bg2:#f7f7f5;--bg3:#ebebea;
+  --text:#1a1a1a;--text2:#666;--text3:#aaa;
+  --border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.18);
   --rad:8px;--rad-lg:12px;
   --green-bg:#EAF3DE;--green-text:#3B6D11;--green-border:#97C459;
   --blue-bg:#E6F1FB;--blue-text:#185FA5;--blue-border:#85B7EB;
-  --amber-bg:#FAEEDA;--amber-text:#854F0B;
-  --red-bg:#FAECE7;--red-text:#993C1D;
-  --success:#1D9E75;--danger:#E24B4A;
-  --accent:#03a9f4;
+  --amber-bg:#FAEEDA;--amber-text:#854F0B;--amber-border:#EF9F27;
+  --red-bg:#FAECE7;--red-text:#993C1D;--red-border:#F09595;
+  --success:#1D9E75;--danger:#E24B4A;--accent:#03a9f4;
   --custom-bg:#EEEDFE;--custom-text:#3C3489;--custom-border:#AFA9EC;
 }
 @media(prefers-color-scheme:dark){:root{
   --bg:#1c1c1e;--bg2:#2c2c2e;--bg3:#3a3a3c;
   --text:#f5f5f5;--text2:#aaa;--text3:#666;
-  --border:rgba(255,255,255,0.09);--border2:rgba(255,255,255,0.18);
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.16);
   --green-bg:#1a2e10;--green-text:#97C459;--green-border:#3B6D11;
   --blue-bg:#0c2240;--blue-text:#85B7EB;--blue-border:#185FA5;
-  --amber-bg:#2e1f05;--amber-text:#FAC775;
-  --red-bg:#2e1008;--red-text:#F09595;
+  --amber-bg:#2e1f05;--amber-text:#FAC775;--amber-border:#854F0B;
+  --red-bg:#2e1008;--red-text:#F09595;--red-border:#993C1D;
   --custom-bg:#26215C;--custom-text:#AFA9EC;--custom-border:#534AB7;
 }}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:14px;padding:16px;max-width:980px;margin:0 auto;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:14px;padding:12px;max-width:600px;margin:0 auto;}
 
 /* Header */
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
-h1{font-size:18px;font-weight:500;display:flex;align-items:center;gap:8px;}
-.live-badge{display:inline-block;font-size:10px;padding:1px 7px;background:var(--danger);color:#fff;border-radius:10px;animation:pulse 1.5s infinite;}
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+h1{font-size:16px;font-weight:500;display:flex;align-items:center;gap:6px;}
+.live{font-size:10px;padding:1px 6px;background:var(--danger);color:#fff;border-radius:10px;animation:pulse 1.5s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.ha-chip{font-size:11px;padding:3px 10px;border-radius:20px;border:0.5px solid var(--border2);background:var(--bg2);color:var(--text2);}
+.ha-chip{font-size:11px;padding:3px 10px;border-radius:20px;border:0.5px solid var(--border2);background:var(--bg2);color:var(--text2);cursor:pointer;white-space:nowrap;}
 .ha-chip.ok{border-color:var(--green-border);background:var(--green-bg);color:var(--green-text);}
-.ha-chip.err{border-color:var(--danger);background:var(--red-bg);color:var(--red-text);cursor:pointer;}
+.ha-chip.err{border-color:var(--danger);background:var(--red-bg);color:var(--red-text);}
+
+/* Device grid — 3 col, wraps to 2 rows */
+.device-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:10px;}
+.dpill{display:flex;align-items:center;gap:5px;padding:5px 8px;border-radius:var(--rad);font-size:11px;border:0.5px solid var(--border2);background:var(--bg2);color:var(--text2);}
+.dpill svg{width:13px;height:13px;stroke:currentColor;fill:none;flex-shrink:0;}
+.dpill-val{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dpill.ok{background:var(--green-bg);color:var(--green-text);border-color:var(--green-border);}
+.dpill.warn{background:var(--amber-bg);color:var(--amber-text);border-color:var(--amber-border);}
+.dpill.bad{background:var(--red-bg);color:var(--red-text);border-color:var(--red-border);}
+.dpill.charging{background:var(--blue-bg);color:var(--blue-text);border-color:var(--blue-border);}
 
 /* Probe cards */
-.probe-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
-.pcard{background:var(--bg);border:0.5px solid var(--border2);border-radius:var(--rad-lg);padding:12px 14px;position:relative;}
-.pcard.p1{border-left:3px solid var(--green-border);}
-.pcard.p2{border-left:3px solid var(--blue-border);}
-.pcard-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--text2);margin-bottom:5px;}
-.pcard-food{font-size:13px;font-weight:500;}
-.pcard-detail{font-size:11px;color:var(--text2);margin-top:2px;}
-.pcard-temp{font-size:22px;font-weight:500;color:var(--accent);margin:4px 0 2px;}
-.pcard-empty{font-size:12px;color:var(--text3);font-style:italic;}
-.pcard-status{font-size:11px;margin-top:4px;}
-.status-warn{color:#BA7517;font-weight:500;}
-.status-done{color:var(--success);font-weight:500;}
-.pcard-progress{height:4px;background:var(--bg3);border-radius:2px;margin-top:8px;overflow:hidden;}
-.pcard-bar{height:4px;background:var(--success);border-radius:2px;transition:width .8s ease;}
-.pcard-bar.warm{background:#EF9F27;}
-.pcard-bar.hot{background:var(--danger);}
-.pcard-clear{position:absolute;top:10px;right:12px;font-size:11px;color:var(--danger);cursor:pointer;background:none;border:none;padding:0;}
+.probes{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}
+.pc{background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--rad-lg);padding:9px 11px;position:relative;}
+.pc.p1{border-left:2px solid var(--green-border);}
+.pc.p2{border-left:2px solid var(--blue-border);}
+.pc-lbl{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:3px;}
+.pc-food{font-size:12px;font-weight:500;line-height:1.3;}
+.pc-detail{font-size:10px;color:var(--text2);margin-top:1px;}
+.pc-temp{font-size:20px;font-weight:500;color:var(--accent);margin:3px 0 1px;line-height:1.1;}
+.pc-stat{font-size:10px;margin-top:2px;}
+.st-warn{color:#BA7517;font-weight:500;}
+.st-done{color:var(--success);font-weight:500;}
+.pc-bar{height:2px;background:var(--bg3);border-radius:1px;margin-top:5px;overflow:hidden;}
+.pc-fill{height:2px;border-radius:1px;background:var(--success);transition:width .8s;}
+.pc-fill.warm{background:#EF9F27;}
+.pc-fill.hot{background:var(--danger);}
+.pc-empty{font-size:11px;color:var(--text3);font-style:italic;}
+.pc-clear{position:absolute;top:7px;right:9px;font-size:11px;color:var(--danger);background:none;border:none;cursor:pointer;padding:0;line-height:1;}
 
-/* Search + chips */
-.search-wrap{position:relative;margin-bottom:10px;}
-.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--text3);fill:none;pointer-events:none;}
-input[type=text],input[type=number],select{font-family:inherit;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--rad);background:var(--bg);color:var(--text);outline:none;}
-input[type=text]{width:100%;padding:8px 10px 8px 34px;}
-input[type=text]:focus,input[type=number]:focus,select:focus{border-color:var(--accent);}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
-.chip{padding:4px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:0.5px solid var(--border2);background:var(--bg2);color:var(--text2);transition:background .15s;user-select:none;}
+/* Search */
+.search-wrap{position:relative;margin-bottom:8px;}
+.search-wrap svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--text3);fill:none;pointer-events:none;}
+input[type=text]{width:100%;padding:7px 9px 7px 30px;font-size:13px;font-family:inherit;border:0.5px solid var(--border2);border-radius:var(--rad);background:var(--bg);color:var(--text);outline:none;}
+input[type=text]:focus{border-color:var(--accent);}
+input[type=number],select{font-family:inherit;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--rad);background:var(--bg);color:var(--text);outline:none;padding:6px 9px;width:100%;}
+select{cursor:pointer;}
+
+/* Category chips — wrap naturally */
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+.chip{padding:3px 11px;border-radius:20px;font-size:12px;cursor:pointer;border:0.5px solid var(--border2);background:var(--bg2);color:var(--text2);user-select:none;}
 .chip.active{background:var(--accent);color:#fff;border-color:var(--accent);}
 .chip.custom-chip{border-color:var(--custom-border);color:var(--custom-text);background:var(--custom-bg);}
-.chip.custom-chip.active{background:var(--custom-text);color:#fff;border-color:var(--custom-text);}
+.chip.custom-chip.active{background:var(--custom-text);color:#fff;}
 
-/* Table */
-.section-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--text2);margin:16px 0 6px;display:flex;align-items:center;gap:8px;}
-.custom-label-badge{font-size:10px;padding:1px 7px;border-radius:10px;background:var(--custom-bg);color:var(--custom-text);border:0.5px solid var(--custom-border);font-weight:500;}
-.tbl-wrap{overflow-x:auto;}
-table{width:100%;border-collapse:collapse;min-width:540px;}
-th{text-align:left;padding:6px 8px;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.04em;color:var(--text2);border-bottom:0.5px solid var(--border2);}
-th:nth-child(1){width:27%;}th:nth-child(2){width:20%;}th:nth-child(3){width:13%;}th:nth-child(4){width:14%;}th:nth-child(5){width:26%;}
-td{padding:9px 8px;border-bottom:0.5px solid var(--border);vertical-align:top;font-size:13px;}
-tr.row:hover td{background:var(--bg2);}
-tr.row.sel-p1 td{background:var(--green-bg);}
-tr.row.sel-p2 td{background:var(--blue-bg);}
-tr.row.custom-row td:first-child{border-left:2px solid var(--custom-border);}
-.food-name{font-weight:500;}
-.tip-txt{font-size:11px;color:var(--text2);margin-top:2px;}
-.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500;}
+/* Food list */
+.sec-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin:10px 0 4px;padding-left:2px;}
+.food-list{display:flex;flex-direction:column;}
+.food-row{display:flex;align-items:center;gap:8px;padding:8px;border-radius:var(--rad);cursor:pointer;transition:background .1s;}
+.food-row:hover{background:var(--bg2);}
+.food-row.sel-p1{background:var(--green-bg);}
+.food-row.sel-p2{background:var(--blue-bg);}
+.food-row.is-open{background:var(--bg2);border-radius:var(--rad) var(--rad) 0 0;}
+.food-row.sel-p1.is-open{background:var(--green-bg);}
+.food-row.sel-p2.is-open{background:var(--blue-bg);}
+.food-row.custom-row{border-left:2px solid var(--custom-border);padding-left:6px;}
+.fn-wrap{flex:1;min-width:0;}
+.fn{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fn-tip{font-size:11px;color:var(--text3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.badge{padding:2px 6px;border-radius:6px;font-size:11px;font-weight:500;white-space:nowrap;flex-shrink:0;}
 .badge-hot{background:var(--red-bg);color:var(--red-text);}
 .badge-med{background:var(--amber-bg);color:var(--amber-text);}
 .badge-low{background:var(--green-bg);color:var(--green-text);}
 .badge-custom{background:var(--custom-bg);color:var(--custom-text);}
-.int-temp{font-size:12px;color:var(--text2);}
-.assign-wrap{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
-.abtn{padding:4px 10px;font-size:12px;border:0.5px solid var(--border2);border-radius:6px;cursor:pointer;background:var(--bg2);color:var(--text2);transition:background .1s;}
-.abtn:hover.p1h{background:var(--green-bg);color:var(--green-text);border-color:var(--green-border);}
-.abtn:hover.p2h{background:var(--blue-bg);color:var(--blue-text);border-color:var(--blue-border);}
-.del-btn{padding:3px 8px;font-size:12px;border:0.5px solid rgba(226,75,74,0.3);border-radius:6px;cursor:pointer;background:none;color:var(--danger);transition:background .1s;}
-.del-btn:hover{background:var(--red-bg);}
+.abtns{display:flex;gap:3px;flex-shrink:0;}
+.abtn{padding:3px 9px;font-size:11px;font-weight:500;border:0.5px solid var(--border2);border-radius:6px;cursor:pointer;background:var(--bg2);color:var(--text2);}
+.abtn.p1a{background:var(--green-bg);color:var(--green-text);border-color:var(--green-border);}
+.abtn.p2a{background:var(--blue-bg);color:var(--blue-text);border-color:var(--blue-border);}
+.del-btn{padding:3px 7px;font-size:11px;border:0.5px solid rgba(226,75,74,.25);border-radius:6px;cursor:pointer;background:none;color:var(--danger);}
+
+/* Expanded detail */
+.food-detail{display:none;background:var(--bg2);border-radius:0 0 var(--rad) var(--rad);padding:8px 10px 10px;border-top:0.5px solid var(--border);}
+.food-detail.open{display:block;}
+.det-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.det-item .dl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:2px;}
+.det-item .dv{font-size:13px;font-weight:500;}
+.det-tip{margin-top:7px;font-size:12px;color:var(--text2);font-style:italic;padding-top:6px;border-top:0.5px solid var(--border);}
+
 .no-results{text-align:center;color:var(--text3);padding:2rem;font-size:13px;}
 
 /* Custom food builder */
-.add-section{margin-top:24px;border-top:0.5px solid var(--border2);padding-top:18px;}
-.add-section h2{font-size:14px;font-weight:500;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
-.add-form{background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--rad-lg);padding:16px;}
-.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:12px;}
-.field{display:flex;flex-direction:column;gap:4px;}
-.field label{font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;}
-.field input,.field select{padding:7px 10px;border-radius:var(--rad);}
-.field input[type=number]{padding:7px 10px;}
-.field select{padding:7px 10px;cursor:pointer;}
-.form-row-bottom{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;}
-.field.grow{flex:1;min-width:200px;}
-.add-btn{padding:8px 20px;font-size:13px;font-weight:500;border:none;border-radius:var(--rad);background:var(--accent);color:#fff;cursor:pointer;white-space:nowrap;transition:opacity .15s;}
-.add-btn:hover{opacity:.88;}
-.add-btn:disabled{opacity:.45;cursor:not-allowed;}
-.form-hint{font-size:11px;color:var(--text3);margin-top:8px;}
-
-/* Custom list manager */
-.custom-list{margin-top:14px;}
-.custom-list-header{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);margin-bottom:6px;}
-.custom-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--rad);border:0.5px solid var(--border);background:var(--bg);margin-bottom:5px;}
-.custom-item-info{flex:1;font-size:13px;}
-.custom-item-name{font-weight:500;}
-.custom-item-meta{font-size:11px;color:var(--text2);margin-top:1px;}
-.custom-item-del{padding:3px 8px;font-size:11px;border:0.5px solid rgba(226,75,74,0.3);border-radius:5px;cursor:pointer;background:none;color:var(--danger);}
-.custom-item-del:hover{background:var(--red-bg);}
-.empty-custom{font-size:12px;color:var(--text3);font-style:italic;padding:8px 0;}
+.add-section{margin-top:16px;padding-top:14px;border-top:0.5px solid var(--border2);}
+.add-toggle{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;cursor:pointer;user-select:none;padding:4px 0;}
+.add-toggle .ch{font-size:12px;color:var(--text3);transition:transform .2s;margin-left:auto;}
+.add-toggle.open .ch{transform:rotate(180deg);}
+.add-body{display:none;margin-top:10px;}
+.add-body.open{display:block;}
+.add-form{background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--rad-lg);padding:12px;}
+.fgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px;}
+.fgrid .full{grid-column:1/-1;}
+.field{display:flex;flex-direction:column;gap:3px;}
+.field label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);}
+.fbottom{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;}
+.field.grow{flex:1;min-width:160px;}
+.add-btn{padding:7px 16px;font-size:13px;font-weight:500;border:none;border-radius:var(--rad);background:var(--accent);color:#fff;cursor:pointer;flex-shrink:0;}
+.form-hint{font-size:11px;color:var(--text3);margin-top:6px;}
+.custom-list{margin-top:12px;}
+.custom-list-hdr{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:5px;}
+.ci{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:var(--rad);border:0.5px solid var(--border);background:var(--bg);margin-bottom:4px;}
+.ci-info{flex:1;font-size:12px;}
+.ci-name{font-weight:500;}
+.ci-meta{font-size:11px;color:var(--text2);margin-top:1px;}
+.ci-del{padding:2px 8px;font-size:11px;border:0.5px solid rgba(226,75,74,.25);border-radius:5px;cursor:pointer;background:none;color:var(--danger);}
+.empty-custom{font-size:12px;color:var(--text3);font-style:italic;padding:6px 0;}
 
 /* Toast */
-#toast{position:fixed;bottom:20px;right:20px;background:var(--success);color:#fff;padding:10px 18px;border-radius:var(--rad-lg);font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;transform:translateY(8px);z-index:999;}
+#toast{position:fixed;bottom:14px;right:14px;background:var(--success);color:#fff;padding:8px 14px;border-radius:var(--rad-lg);font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;transform:translateY(5px);z-index:999;}
 #toast.show{opacity:1;transform:translateY(0);}
 #toast.warn{background:#BA7517;}
 #toast.err{background:var(--danger);}
-
-.ha-note{font-size:11px;color:var(--text3);margin-top:14px;padding:8px 12px;background:var(--bg2);border-radius:var(--rad);border:0.5px solid var(--border);}
-
-/* Device status bar */
-.device-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:16px;padding:12px 14px;background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--rad-lg);}
-.device-bar-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--text2);grid-column:1/-1;margin-bottom:2px;}
-.dstat{display:flex;flex-direction:column;gap:2px;}
-.dstat-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;}
-.dstat-value{font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:4px;}
-.dstat-value.connected{color:var(--green-text);}
-.dstat-value.disconnected{color:var(--red-text);}
-.dstat-value.charging{color:#185FA5;}
-.bat-bar{width:32px;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle;margin-left:2px;}
-.bat-fill{height:6px;border-radius:3px;transition:width .5s;}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>🔥 Traeger Cook Guide <span id="live-badge" class="live-badge" style="display:none;">LIVE</span></h1>
+<div class="hdr">
+  <h1>🔥 Traeger Cook Guide <span id="live-badge" class="live" style="display:none;">LIVE</span></h1>
   <span id="ha-chip" class="ha-chip err" onclick="promptToken()">HA: connecting…</span>
 </div>
 
-<!-- Device Status Bar -->
-<div class="device-bar" id="device-bar">
-  <div class="device-bar-title">HOPEPOP Thermometer Status</div>
-  <div class="dstat">
-    <div class="dstat-label">Connection</div>
-    <div class="dstat-value" id="ds-connected">—</div>
+<!-- Device status grid — 3 col, wraps, no scroll -->
+<div class="device-grid">
+  <div class="dpill" id="ds-conn">
+    <svg viewBox="0 0 24 24" stroke-width="2"><path d="M8.56 2.9A7 7 0 0 1 19 9v4"/><path d="M10.46 5.6A3.5 3.5 0 0 1 15.5 9v3.5"/><line x1="2" y1="2" x2="22" y2="22"/><path d="M12 9v4"/><path d="M12 18h.01"/></svg>
+    <span class="dpill-val">—</span>
   </div>
-  <div class="dstat">
-    <div class="dstat-label">Probes Charging</div>
-    <div class="dstat-value" id="ds-charging">—</div>
+  <div class="dpill" id="ds-chrg">
+    <svg viewBox="0 0 24 24" stroke-width="2"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M20 11h2v4h-2"/><path d="M10 11v4m-2-2h4"/></svg>
+    <span class="dpill-val">—</span>
   </div>
-  <div class="dstat">
-    <div class="dstat-label">Base Battery</div>
-    <div class="dstat-value" id="ds-base-bat">—</div>
+  <div class="dpill" id="ds-base">
+    <svg viewBox="0 0 24 24" stroke-width="2"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M20 11h2v4h-2"/></svg>
+    <span class="dpill-val">Base —</span>
   </div>
-  <div class="dstat">
-    <div class="dstat-label">Probe 1 Battery</div>
-    <div class="dstat-value" id="ds-p1-bat">—</div>
+  <div class="dpill" id="ds-p1b">
+    <svg viewBox="0 0 24 24" stroke-width="2"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M20 11h2v4h-2"/></svg>
+    <span class="dpill-val">P1 —</span>
   </div>
-  <div class="dstat">
-    <div class="dstat-label">Probe 2 Battery</div>
-    <div class="dstat-value" id="ds-p2-bat">—</div>
+  <div class="dpill" id="ds-p2b">
+    <svg viewBox="0 0 24 24" stroke-width="2"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M20 11h2v4h-2"/></svg>
+    <span class="dpill-val">P2 —</span>
   </div>
 </div>
 
 <!-- Probe cards -->
-<div class="probe-grid">
-  <div class="pcard p1">
-    <div class="pcard-title">Probe 1</div>
-    <div id="p1-food" class="pcard-empty">No food assigned</div>
-    <div id="p1-temp" class="pcard-temp" style="display:none;"></div>
-    <div id="p1-status" class="pcard-status"></div>
-    <div class="pcard-progress" id="p1-progress-wrap" style="display:none;"><div id="p1-bar" class="pcard-bar" style="width:0%"></div></div>
-    <button id="p1-clear" class="pcard-clear" style="display:none;" onclick="clearProbe(1)">✕ clear</button>
+<div class="probes">
+  <div class="pc p1">
+    <div class="pc-lbl">Probe 1</div>
+    <div id="p1-food" class="pc-empty">No food assigned</div>
+    <div id="p1-temp" class="pc-temp" style="display:none;"></div>
+    <div id="p1-stat" class="pc-stat"></div>
+    <div class="pc-bar" id="p1-bw" style="display:none;"><div id="p1-bar" class="pc-fill" style="width:0%"></div></div>
+    <button id="p1-clr" class="pc-clear" style="display:none;" onclick="clearProbe(1)">✕</button>
   </div>
-  <div class="pcard p2">
-    <div class="pcard-title">Probe 2</div>
-    <div id="p2-food" class="pcard-empty">No food assigned</div>
-    <div id="p2-temp" class="pcard-temp" style="display:none;"></div>
-    <div id="p2-status" class="pcard-status"></div>
-    <div class="pcard-progress" id="p2-progress-wrap" style="display:none;"><div id="p2-bar" class="pcard-bar" style="width:0%"></div></div>
-    <button id="p2-clear" class="pcard-clear" style="display:none;" onclick="clearProbe(2)">✕ clear</button>
+  <div class="pc p2">
+    <div class="pc-lbl">Probe 2</div>
+    <div id="p2-food" class="pc-empty">No food assigned</div>
+    <div id="p2-temp" class="pc-temp" style="display:none;"></div>
+    <div id="p2-stat" class="pc-stat"></div>
+    <div class="pc-bar" id="p2-bw" style="display:none;"><div id="p2-bar" class="pc-fill" style="width:0%"></div></div>
+    <button id="p2-clr" class="pc-clear" style="display:none;" onclick="clearProbe(2)">✕</button>
   </div>
 </div>
 
 <!-- Search -->
 <div class="search-wrap">
   <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-  <input type="text" id="search" placeholder="Search food (e.g. brisket, salmon, ribs...)">
+  <input type="text" id="search" placeholder="Search food…">
 </div>
 
-<!-- Chips -->
+<!-- Category chips -->
 <div class="chips" id="chips"></div>
 
-<!-- Table output -->
+<!-- Food list -->
 <div id="output"></div>
 
-<!-- ── Custom Food Builder ── -->
+<!-- Custom food builder -->
 <div class="add-section">
-  <h2>➕ Add Custom Food</h2>
-  <div class="add-form">
-    <div class="form-grid">
-      <div class="field grow">
-        <label>Food name *</label>
-        <input type="text" id="cf-name" placeholder="e.g. Wagyu brisket" maxlength="60">
-      </div>
-      <div class="field">
-        <label>Category *</label>
-        <select id="cf-cat">
-          <option value="">— pick one —</option>
-          <option>Beef</option><option>Pork</option><option>Poultry</option>
-          <option>Seafood</option><option>Lamb</option><option>Vegetables</option>
-          <option>Sides &amp; Extras</option><option>Desserts &amp; Bread</option>
-          <option>Custom</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Smoker temp (°F) *</label>
-        <input type="number" id="cf-smoke" placeholder="225" min="100" max="600" style="width:100%">
-      </div>
-      <div class="field">
-        <label>Smoker temp max</label>
-        <input type="number" id="cf-smoke-max" placeholder="250 (optional)" min="100" max="600" style="width:100%">
-      </div>
-      <div class="field">
-        <label>Cook time</label>
-        <input type="text" id="cf-time" placeholder="e.g. 10–14 hrs" maxlength="30">
-      </div>
-      <div class="field">
-        <label>Internal target (°F)</label>
-        <input type="number" id="cf-target" placeholder="e.g. 203" min="80" max="250" style="width:100%">
-      </div>
-    </div>
-    <div class="form-row-bottom">
-      <div class="field grow">
-        <label>Tip / notes</label>
-        <input type="text" id="cf-tip" placeholder="e.g. Wrap at 165°F, rest 1 hr" maxlength="80">
-      </div>
-      <button class="add-btn" id="add-btn" onclick="addCustomFood()">Add to list</button>
-    </div>
-    <div class="form-hint">* Required. Internal target temp wires directly to your HOPEPOP probe in HA when you assign it.</div>
+  <div class="add-toggle" id="add-toggle" onclick="toggleAdd()">
+    ➕ Add custom food
+    <span class="ch">▾</span>
   </div>
-
-  <!-- Saved custom entries -->
-  <div class="custom-list">
-    <div class="custom-list-header">Your custom entries</div>
-    <div id="custom-list-items"></div>
+  <div class="add-body" id="add-body">
+    <div class="add-form">
+      <div class="fgrid">
+        <div class="field full">
+          <label>Food name *</label>
+          <input type="text" id="cf-name" placeholder="e.g. Wagyu brisket" maxlength="60">
+        </div>
+        <div class="field">
+          <label>Category *</label>
+          <select id="cf-cat">
+            <option value="">— pick —</option>
+            <option>Beef</option><option>Pork</option><option>Poultry</option>
+            <option>Seafood</option><option>Lamb</option><option>Vegetables</option>
+            <option>Sides &amp; Extras</option><option>Desserts &amp; Bread</option>
+            <option>Custom</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Smoker temp (°F) *</label>
+          <input type="number" id="cf-smoke" placeholder="225" min="100" max="600">
+        </div>
+        <div class="field">
+          <label>Temp max</label>
+          <input type="number" id="cf-smoke-max" placeholder="250 (opt)" min="100" max="600">
+        </div>
+        <div class="field">
+          <label>Cook time</label>
+          <input type="text" id="cf-time" placeholder="10–14 hrs" maxlength="30">
+        </div>
+        <div class="field">
+          <label>Internal target (°F)</label>
+          <input type="number" id="cf-target" placeholder="203" min="80" max="250">
+        </div>
+      </div>
+      <div class="fbottom">
+        <div class="field grow">
+          <label>Tip / notes</label>
+          <input type="text" id="cf-tip" placeholder="e.g. Wrap at 165°F" maxlength="80">
+        </div>
+        <button class="add-btn" onclick="addCustom()">Add</button>
+      </div>
+      <div class="form-hint">* Required. Target temp wires directly to your probe in HA.</div>
+    </div>
+    <div class="custom-list">
+      <div class="custom-list-hdr">Saved custom entries</div>
+      <div id="custom-list"></div>
+    </div>
   </div>
-</div>
-
-<div class="ha-note">
-  Click any row → P1 or P2 to assign. HA auto-sets target temp and sends push alerts at 10°F from target and again when done.
-  Custom entries are saved locally and survive page refreshes.
 </div>
 
 <div id="toast"></div>
 
 <script>
-const COOK_DATA = [
+const COOK_DATA=[
   {cat:"Beef",items:[
     {name:"Brisket (whole packer)",smoke:"225–250°F",time:"10–16 hrs",internal:"203°F",tip:"Wrap at 165°F",target:203,haType:"Brisket"},
     {name:"Brisket flat",smoke:"225–250°F",time:"6–10 hrs",internal:"203°F",tip:"Wrap at 165°F",target:203,haType:"Brisket"},
     {name:"Beef back ribs",smoke:"225–250°F",time:"5–7 hrs",internal:"195–200°F",tip:"3-2-1 method",target:198,haType:"Beef Ribs"},
     {name:"Beef short ribs",smoke:"250°F",time:"8–10 hrs",internal:"205°F",tip:"Unwrapped",target:205,haType:"Beef Ribs"},
-    {name:"Tri-tip",smoke:"225°F",time:"1.5–2 hrs",internal:"135°F (med-rare)",tip:"Sear after smoke",target:135,haType:"Beef Medium Rare"},
+    {name:"Tri-tip",smoke:"225°F",time:"1.5–2 hrs",internal:"135°F",tip:"Sear after smoke",target:135,haType:"Beef Medium Rare"},
     {name:"Chuck roast",smoke:"250°F",time:"8–10 hrs",internal:"205°F",tip:"Wrap at 165°F",target:205,haType:"Beef Ribs"},
     {name:"Burgers",smoke:"375–400°F",time:"25–30 min",internal:"160°F",tip:"",target:160,haType:"Beef Well Done"},
-    {name:"Steaks (ribeye/NY strip)",smoke:"225°F then 450°F",time:"45–60 min",internal:"130–135°F (med-rare)",tip:"Reverse sear",target:133,haType:"Beef Medium Rare"},
+    {name:"Steaks (ribeye/NY strip)",smoke:"225°F then 450°F",time:"45–60 min",internal:"130–135°F",tip:"Reverse sear",target:133,haType:"Beef Medium Rare"},
     {name:"Meatloaf",smoke:"250°F",time:"3–4 hrs",internal:"160°F",tip:"",target:160,haType:"Beef Well Done"},
     {name:"Beef jerky",smoke:"180°F",time:"4–6 hrs",internal:"—",tip:"Slice thin, marinate",target:null,haType:"None"},
   ]},
@@ -305,7 +304,7 @@ const COOK_DATA = [
     {name:"Chicken thighs",smoke:"275°F",time:"1.5–2 hrs",internal:"175°F",tip:"Higher temp = better skin",target:175,haType:"Chicken Well Done"},
     {name:"Chicken breasts",smoke:"225°F",time:"1–1.5 hrs",internal:"165°F",tip:"Brine first",target:165,haType:"Chicken Breast"},
     {name:"Chicken wings",smoke:"250°F then 425°F",time:"2 hrs + 15 min",internal:"175°F",tip:"Crank heat at end",target:175,haType:"Chicken Well Done"},
-    {name:"Whole turkey",smoke:"275°F",time:"4–8 hrs",internal:"165°F (thigh)",tip:"Spatchcock for even cook",target:165,haType:"Chicken Well Done"},
+    {name:"Whole turkey",smoke:"275°F",time:"4–8 hrs",internal:"165°F",tip:"Spatchcock for even cook",target:165,haType:"Chicken Well Done"},
     {name:"Turkey breast",smoke:"250°F",time:"3–4 hrs",internal:"165°F",tip:"",target:165,haType:"Chicken Well Done"},
     {name:"Duck (whole)",smoke:"275°F",time:"3–4 hrs",internal:"165°F",tip:"Score skin to render fat",target:165,haType:"Chicken Well Done"},
   ]},
@@ -318,9 +317,9 @@ const COOK_DATA = [
     {name:"Scallops",smoke:"225°F",time:"45–60 min",internal:"130°F",tip:"Dry well before smoking",target:130,haType:"Salmon Medium"},
   ]},
   {cat:"Lamb",items:[
-    {name:"Leg of lamb",smoke:"250°F",time:"4–6 hrs",internal:"145°F (med)",tip:"",target:145,haType:"Beef Medium"},
+    {name:"Leg of lamb",smoke:"250°F",time:"4–6 hrs",internal:"145°F",tip:"",target:145,haType:"Beef Medium"},
     {name:"Lamb shoulder",smoke:"250°F",time:"6–8 hrs",internal:"195°F",tip:"Pull like pork",target:195,haType:"Beef Ribs"},
-    {name:"Rack of lamb",smoke:"225°F",time:"1.5 hrs",internal:"130–135°F (med-rare)",tip:"Reverse sear",target:133,haType:"Beef Medium Rare"},
+    {name:"Rack of lamb",smoke:"225°F",time:"1.5 hrs",internal:"130–135°F",tip:"Reverse sear",target:133,haType:"Beef Medium Rare"},
     {name:"Lamb chops",smoke:"225°F",time:"45–60 min",internal:"130–135°F",tip:"",target:133,haType:"Beef Medium Rare"},
   ]},
   {cat:"Vegetables",items:[
@@ -352,413 +351,312 @@ const COOK_DATA = [
   ]},
 ];
 
-const HA_ENTITIES = {
-  p1Temp:"sensor.bt_proxy_hopepop_probe_1_temp",p2Temp:"sensor.bt_proxy_hopepop_probe_2_temp",
-  p1MeatType:"input_select.probe_1_meat_type",p2MeatType:"input_select.probe_2_meat_type",
-  p1TargetTemp:"input_number.probe_1_target_temp",p2TargetTemp:"input_number.probe_2_target_temp",
-  p1AlertSent:"input_boolean.probe_1_alert_sent",p2AlertSent:"input_boolean.probe_2_alert_sent",
-  connected:"binary_sensor.bt_proxy_hopepop_connected",
-  charging:"binary_sensor.bt_proxy_hopepop_probes_charging",
-  baseBat:"sensor.bt_proxy_hopepop_base_battery",
-  p1Bat:"sensor.bt_proxy_hopepop_probe_1_battery",
-  p2Bat:"sensor.bt_proxy_hopepop_probe_2_battery",
+const ENT={
+  p1T:"sensor.bt_proxy_hopepop_probe_1_temp",
+  p2T:"sensor.bt_proxy_hopepop_probe_2_temp",
+  p1M:"input_select.probe_1_meat_type",
+  p2M:"input_select.probe_2_meat_type",
+  p1N:"input_number.probe_1_target_temp",
+  p2N:"input_number.probe_2_target_temp",
+  p1A:"input_boolean.probe_1_alert_sent",
+  p2A:"input_boolean.probe_2_alert_sent",
+  conn:"binary_sensor.bt_proxy_hopepop_connected",
+  chrg:"binary_sensor.bt_proxy_hopepop_probes_charging",
+  base:"sensor.bt_proxy_hopepop_base_battery",
+  p1B:"sensor.bt_proxy_hopepop_probe_1_battery",
+  p2B:"sensor.bt_proxy_hopepop_probe_2_battery",
 };
 
-// ── State ─────────────────────────────────────────────────
-let haWs=null, haConnected=false, haToken=null, msgId=1, stateMap={};
-let probe1Item=null, probe2Item=null;
-let activeCat="All", query="";
-let customFoods = [];
+let haWs=null,haOk=false,haToken=null,msgId=1,states={};
+let p1Item=null,p2Item=null,activeCat="All",query="",openIdx=null;
+let customFoods=[],_reg=[];
+const LS_KEY="traeger_custom_v2";
 
-// ── LocalStorage ──────────────────────────────────────────
-const LS_KEY = "traeger_custom_foods";
-function loadCustom() {
-  try { customFoods = JSON.parse(localStorage.getItem(LS_KEY)) || []; } catch{ customFoods=[]; }
-}
-function saveCustom() {
-  localStorage.setItem(LS_KEY, JSON.stringify(customFoods));
-}
+// ── PERMANENT TOKEN ──────────────────────────────────────
+// Leave empty ("") to be prompted once per browser.
+// Or paste token here to skip the prompt on ALL devices:
+const HA_TOKEN="";
+// ─────────────────────────────────────────────────────────
 
-// ── Custom food CRUD ──────────────────────────────────────
-function addCustomFood() {
-  const name = document.getElementById("cf-name").value.trim();
-  const cat  = document.getElementById("cf-cat").value;
-  const smokeMin = parseInt(document.getElementById("cf-smoke").value);
-  const smokeMax = parseInt(document.getElementById("cf-smoke-max").value) || null;
-  const time = document.getElementById("cf-time").value.trim() || "—";
-  const target = parseInt(document.getElementById("cf-target").value) || null;
-  const tip  = document.getElementById("cf-tip").value.trim();
+function loadCustom(){try{customFoods=JSON.parse(localStorage.getItem(LS_KEY))||[];}catch{customFoods=[];}}
+function saveCustom(){localStorage.setItem(LS_KEY,JSON.stringify(customFoods));}
 
-  if (!name) { showToast("Food name is required","err"); return; }
-  if (!cat)  { showToast("Pick a category","err"); return; }
-  if (!smokeMin || smokeMin < 100) { showToast("Enter a valid smoker temp","err"); return; }
-
-  const smokeStr = smokeMax && smokeMax > smokeMin
-    ? `${smokeMin}–${smokeMax}°F`
-    : `${smokeMin}°F`;
-
-  const entry = {
-    id: Date.now(),
-    name, cat,
-    smoke: smokeStr,
-    time,
-    internal: target ? `${target}°F` : "—",
-    tip, target,
-    haType: target ? closestHaType(target) : "None",
-    custom: true,
+function connectHA(){
+  const proto=location.protocol==="https:"?"wss":"ws";
+  const host=location.hostname;
+  const port=location.port||(proto==="wss"?"443":"8123");
+  const url=`${proto}://${host}:${port}/api/websocket`;
+  console.debug("[Traeger] WS:",url);
+  try{haWs=new WebSocket(url);}catch(e){return;}
+  haWs.onmessage=e=>{
+    const m=JSON.parse(e.data);
+    if(m.type==="auth_required"){
+      const t=HA_TOKEN||localStorage.getItem("ha_token");
+      if(t){haToken=t;haWs.send(JSON.stringify({type:"auth",access_token:t}));}
+      else promptToken();
+    }else if(m.type==="auth_ok"){
+      haOk=true;setChip(true);
+      document.getElementById("live-badge").style.display="inline";
+      haWs.send(JSON.stringify({id:msgId++,type:"get_states"}));
+      haWs.send(JSON.stringify({id:msgId++,type:"subscribe_events",event_type:"state_changed"}));
+    }else if(m.type==="auth_invalid"){
+      localStorage.removeItem("ha_token");setChip(false,"auth failed — tap to retry");
+    }else if(m.type==="event"&&m.event?.event_type==="state_changed"){
+      const nd=m.event.data.new_state;
+      if(nd){states[nd.entity_id]=nd.state;refresh();}
+    }else if(m.type==="result"&&Array.isArray(m.result)){
+      m.result.forEach(s=>{states[s.entity_id]=s.state;});refresh();
+    }
   };
-
-  customFoods.push(entry);
-  saveCustom();
-  clearForm();
-  buildChips();
-  renderCustomList();
-  render();
-  showToast(`"${name}" added to ${cat}`);
+  haWs.onclose=()=>{haOk=false;document.getElementById("live-badge").style.display="none";setChip(false,"HA disconnected");setTimeout(connectHA,6000);};
+  haWs.onerror=()=>haWs.close();
 }
 
-function deleteCustomFood(id) {
-  const entry = customFoods.find(f => f.id === id);
-  if (!entry) return;
-  if (!confirm(`Delete "${entry.name}" from your custom list?`)) return;
-  customFoods = customFoods.filter(f => f.id !== id);
-  saveCustom();
-  renderCustomList();
-  buildChips();
-  render();
-  showToast(`"${entry.name}" deleted`, "warn");
+function setChip(ok,msg){
+  const el=document.getElementById("ha-chip");
+  el.className="ha-chip "+(ok?"ok":"err");
+  el.textContent=ok?"HA: connected":(msg||"HA: disconnected");
+  el.onclick=ok?null:promptToken;
 }
 
-function closestHaType(t) {
-  if (t >= 200) return "Brisket";
-  if (t >= 190) return "Beef Ribs";
-  if (t >= 170) return "Chicken Well Done";
-  if (t >= 160) return "Beef Well Done";
-  if (t >= 150) return "Beef Medium Well";
-  if (t >= 145) return "Lean Fish";
-  if (t >= 140) return "Beef Medium";
-  if (t >= 133) return "Beef Medium Rare";
-  if (t >= 125) return "Beef Rare";
-  return "None";
+function promptToken(){
+  const t=prompt("Paste your HA Long-Lived Access Token\n(Profile → Long-Lived Access Tokens → Create Token)\n\nSaved automatically — asked once per browser.");
+  if(!t||!t.trim())return;
+  const c=t.trim();
+  localStorage.setItem("ha_token",c);haToken=c;
+  showToast("Token saved — connecting…");
+  if(haWs)haWs.close();
+  connectHA();
 }
 
-function clearForm() {
-  ["cf-name","cf-time","cf-tip"].forEach(id => document.getElementById(id).value="");
-  ["cf-smoke","cf-smoke-max","cf-target"].forEach(id => document.getElementById(id).value="");
-  document.getElementById("cf-cat").value="";
+function svc(domain,service,target,data){
+  if(!haOk)return;
+  haWs.send(JSON.stringify({id:msgId++,type:"call_service",domain,service,target:{entity_id:target},service_data:data||{}}));
 }
 
-// ── Render custom manager list ────────────────────────────
-function renderCustomList() {
-  const el = document.getElementById("custom-list-items");
-  if (!customFoods.length) {
-    el.innerHTML = '<div class="empty-custom">No custom entries yet — add one above.</div>';
-    return;
+function assign(item,probe){
+  if(probe===1)p1Item=item;else p2Item=item;
+  if(haOk){
+    svc("input_select","select_option",probe===1?ENT.p1M:ENT.p2M,{option:item.haType||"None"});
+    if(item.target)svc("input_number","set_value",probe===1?ENT.p1N:ENT.p2N,{value:item.target});
+    svc("input_boolean","turn_off",probe===1?ENT.p1A:ENT.p2A,{});
+    showToast(`P${probe} → ${item.name}${item.target?" ("+item.target+"°F)":""}`);
+  }else showToast(`P${probe} → ${item.name} (HA offline)`,"warn");
+  refresh();render();
+}
+
+function clearProbe(probe){
+  if(probe===1){p1Item=null;svc("input_select","select_option",ENT.p1M,{option:"None"});}
+  else{p2Item=null;svc("input_select","select_option",ENT.p2M,{option:"None"});}
+  refresh();render();
+}
+
+window.assignFromIdx=function(idx,probe){const item=_reg[idx];if(item)assign(item,probe);};
+
+function refresh(){updateProbes();updateDevice();}
+
+function updateDevice(){
+  const conn=states[ENT.conn];
+  const chrg=states[ENT.chrg];
+  const base=parseFloat(states[ENT.base]);
+  const p1b=parseFloat(states[ENT.p1B]);
+  const p2b=parseFloat(states[ENT.p2B]);
+
+  function bc(p){return p>=60?"ok":p>=30?"warn":"bad";}
+
+  const ce=document.getElementById("ds-conn");
+  if(conn!==undefined){
+    ce.querySelector(".dpill-val").textContent=conn==="on"?"Connected":"Disconnected";
+    ce.className="dpill "+(conn==="on"?"ok":"bad");
   }
-  el.innerHTML = customFoods.map(f => `
-    <div class="custom-item">
-      <div class="custom-item-info">
-        <div class="custom-item-name">${f.name} <span style="font-size:11px;color:var(--text3);font-weight:400;">· ${f.cat}</span></div>
-        <div class="custom-item-meta">${f.smoke} · ${f.time} · Internal: ${f.internal}${f.tip ? " · " + f.tip : ""}</div>
-      </div>
-      <button class="custom-item-del" onclick="deleteCustomFood(${f.id})">✕ Delete</button>
-    </div>
-  `).join("");
+  const che=document.getElementById("ds-chrg");
+  if(chrg!==undefined){
+    che.querySelector(".dpill-val").textContent=chrg==="on"?"Charging":"Not charging";
+    che.className="dpill "+(chrg==="on"?"charging":"");
+  }
+  function setbat(id,label,pct){
+    const el=document.getElementById(id);
+    if(!isNaN(pct)){el.querySelector(".dpill-val").textContent=`${label} ${Math.round(pct)}%`;el.className="dpill "+bc(pct);}
+  }
+  setbat("ds-base","Base",base);
+  setbat("ds-p1b","P1",p1b);
+  setbat("ds-p2b","P2",p2b);
 }
 
-// ── Build chips (includes Custom if any) ──────────────────
-function buildChips() {
-  const el = document.getElementById("chips");
-  const builtinCats = ["All", ...COOK_DATA.map(d => d.cat)];
-  const hasCustom = customFoods.length > 0;
-  const allCats = hasCustom ? [...builtinCats, "Custom"] : builtinCats;
+function updateProbes(){
+  updateOneProbe(1,p1Item,ENT.p1T,ENT.p1N);
+  updateOneProbe(2,p2Item,ENT.p2T,ENT.p2N);
+}
 
-  // Keep active chip valid
-  if (!allCats.includes(activeCat)) activeCat = "All";
+function updateOneProbe(n,item,tEnt,nEnt){
+  const fEl=document.getElementById(`p${n}-food`);
+  const tEl=document.getElementById(`p${n}-temp`);
+  const sEl=document.getElementById(`p${n}-stat`);
+  const bw=document.getElementById(`p${n}-bw`);
+  const bar=document.getElementById(`p${n}-bar`);
+  const clr=document.getElementById(`p${n}-clr`);
+  const cur=parseFloat(states[tEnt])||null;
+  const tgt=item?item.target:null;
+  if(!item){
+    fEl.className="pc-empty";fEl.textContent="No food assigned";
+    tEl.style.display="none";sEl.textContent="";bw.style.display="none";clr.style.display="none";return;
+  }
+  fEl.className="pc-food";
+  fEl.innerHTML=`${item.name}<div class="pc-detail">${item.smoke} · ${item.time}</div>`;
+  clr.style.display="block";
+  if(cur!==null){tEl.style.display="block";tEl.textContent=Math.round(cur)+"°F";}else tEl.style.display="none";
+  if(tgt&&cur!==null){
+    bw.style.display="block";
+    const pct=Math.min(100,Math.round(((cur-32)/(tgt-32))*100));
+    bar.style.width=pct+"%";
+    bar.className="pc-fill"+(pct>90?" hot":pct>75?" warm":"");
+    const rem=tgt-cur;
+    if(rem<=0)sEl.innerHTML=`<span class="st-done">✓ Ready to pull!</span>`;
+    else if(rem<=10)sEl.innerHTML=`<span class="st-warn">⚠ ${Math.round(rem)}°F to go!</span>`;
+    else{sEl.textContent=`${Math.round(rem)}°F from target (${tgt}°F)`;sEl.className="pc-stat";}
+  }else if(tgt){bw.style.display="none";sEl.textContent=`Target: ${tgt}°F`;}
+  else{bw.style.display="none";sEl.textContent="No temp target";}
+}
 
-  el.innerHTML = "";
-  allCats.forEach(c => {
-    const ch = document.createElement("button");
-    const isCustomChip = c === "Custom";
-    ch.className = "chip" + (c === activeCat ? " active" : "") + (isCustomChip ? " custom-chip" : "");
-    ch.textContent = c;
-    ch.onclick = () => {
-      activeCat = c;
-      document.querySelectorAll(".chip").forEach(x => x.classList.remove("active"));
-      ch.classList.add("active");
-      render();
-    };
+function tc(s){const v=parseInt(s.replace(/[^\d]/,""));return v>=375?"badge-hot":v>=250?"badge-med":"badge-low";}
+
+function buildMerged(){
+  if(!customFoods.length)return COOK_DATA;
+  const m=COOK_DATA.map(s=>({...s,items:[...s.items]}));
+  customFoods.forEach(cf=>{
+    const sec=m.find(s=>s.cat===cf.cat);
+    if(sec)sec.items.push(cf);
+    else{const ex=m.find(s=>s.cat==="Custom");if(ex)ex.items.push(cf);else m.push({cat:"Custom",items:[cf]});}
+  });
+  return m;
+}
+
+function render(){
+  _reg=[];
+  const all=buildMerged();
+  let html="",total=0;
+  all.forEach(sec=>{
+    if(activeCat!=="All"&&activeCat!==sec.cat)return;
+    const items=sec.items.filter(i=>!query||i.name.toLowerCase().includes(query)||sec.cat.toLowerCase().includes(query));
+    if(!items.length)return;
+    total+=items.length;
+    html+=`<div class="sec-label">${sec.cat}</div><div class="food-list">`;
+    items.forEach(item=>{
+      const isP1=p1Item&&p1Item.name===item.name;
+      const isP2=p2Item&&p2Item.name===item.name;
+      const idx=_reg.length;_reg.push(item);
+      const isOpen=openIdx===idx;
+      const rc="food-row"+(item.custom?" custom-row":"")+(isP1?" sel-p1":isP2?" sel-p2":"")+(isOpen?" is-open":"");
+      html+=`<div class="${rc}" id="fr-${idx}" onclick="toggleRow(${idx})">
+        <div class="fn-wrap">
+          <div class="fn">${item.name}${item.custom?'<span style="font-size:10px;margin-left:5px;padding:1px 5px;border-radius:5px;background:var(--custom-bg);color:var(--custom-text);">custom</span>':''}</div>
+          ${item.tip?`<div class="fn-tip">${item.tip}</div>`:''}
+        </div>
+        <span class="badge ${item.custom?"badge-custom":tc(item.smoke)}">${item.smoke}</span>
+        <div class="abtns" onclick="event.stopPropagation()">
+          <button class="abtn${isP1?" p1a":""}" onclick="assignFromIdx(${idx},1)">P1${isP1?" ✓":""}</button>
+          <button class="abtn${isP2?" p2a":""}" onclick="assignFromIdx(${idx},2)">P2${isP2?" ✓":""}</button>
+          ${item.custom?`<button class="del-btn" onclick="event.stopPropagation();deleteCustom(${item.id})">✕</button>`:''}
+        </div>
+      </div>
+      <div class="food-detail${isOpen?" open":""}" id="fd-${idx}">
+        <div class="det-grid">
+          <div class="det-item"><div class="dl">Smoker</div><div class="dv">${item.smoke}</div></div>
+          <div class="det-item"><div class="dl">Time</div><div class="dv">${item.time}</div></div>
+          <div class="det-item"><div class="dl">Internal</div><div class="dv">${item.internal}</div></div>
+        </div>
+        ${item.tip?`<div class="det-tip">${item.tip}</div>`:''}
+      </div>`;
+    });
+    html+=`</div>`;
+  });
+  if(!total)html=`<div class="no-results">No results${query?' for "'+query+'"':""}</div>`;
+  document.getElementById("output").innerHTML=html;
+}
+
+function toggleRow(idx){
+  if(openIdx===idx){openIdx=null;}
+  else{openIdx=idx;}
+  render();
+}
+
+function buildChips(){
+  const el=document.getElementById("chips");
+  const cats=["All",...COOK_DATA.map(d=>d.cat),...(customFoods.length?["Custom"]:[])];
+  if(!cats.includes(activeCat))activeCat="All";
+  el.innerHTML="";
+  cats.forEach(c=>{
+    const ch=document.createElement("button");
+    ch.className="chip"+(c===activeCat?" active":"")+(c==="Custom"?" custom-chip":"");
+    ch.textContent=c;
+    ch.onclick=()=>{activeCat=c;document.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));ch.classList.add("active");openIdx=null;render();};
     el.appendChild(ch);
   });
 }
 
-// ── HA WebSocket ──────────────────────────────────────────
-// ── PERMANENT TOKEN ──────────────────────────────────────
-// Option A (recommended): leave empty — you will be prompted once
-//   per browser and the token is saved to localStorage automatically.
-// Option B: paste your token here to hardcode it for ALL devices:
-//   const HA_TOKEN = "eyJ0eXAiOiJKV1Qi...your_full_token";
-const HA_TOKEN = "";
-// ─────────────────────────────────────────────────────────
-
-function connectHA() {
-  const proto = location.protocol === "https:" ? "wss" : "ws";
-  const host = location.hostname;
-  // Use explicit port if in URL, otherwise default:
-  //   https/wss -> 443 (DuckDNS, Nabu Casa, reverse proxy)
-  //   http/ws   -> 8123 (local network direct)
-  const port = location.port
-    ? location.port
-    : (proto === "wss" ? "443" : "8123");
-  const wsUrl = `${proto}://${host}:${port}/api/websocket`;
-  console.debug("[Traeger] Connecting WebSocket to:", wsUrl);
-  try { haWs = new WebSocket(wsUrl); } catch(e){ console.error("[Traeger] WebSocket error:", e); return; }
-  haWs.onmessage = e => {
-    const msg = JSON.parse(e.data);
-    if (msg.type === "auth_required") {
-      const tok = HA_TOKEN || localStorage.getItem("ha_token");
-      if (tok) { haToken=tok; haWs.send(JSON.stringify({type:"auth",access_token:tok})); }
-      else promptToken();
-    } else if (msg.type === "auth_ok") {
-      haConnected=true;
-      setHaChip(true);
-      document.getElementById("live-badge").style.display="inline";
-      haWs.send(JSON.stringify({id:msgId++,type:"get_states"}));
-      haWs.send(JSON.stringify({id:msgId++,type:"subscribe_events",event_type:"state_changed"}));
-    } else if (msg.type === "auth_invalid") {
-      localStorage.removeItem("ha_token");
-      setHaChip(false,"auth failed — click to re-enter token");
-    } else if (msg.type === "event" && msg.event?.event_type === "state_changed") {
-      const nd = msg.event.data.new_state;
-      if (nd) { stateMap[nd.entity_id]=nd.state; updateProbeCards(); }
-    } else if (msg.type === "result" && Array.isArray(msg.result)) {
-      msg.result.forEach(s => { stateMap[s.entity_id]=s.state; });
-      updateProbeCards();
-    }
-  };
-  haWs.onclose = () => {
-    haConnected=false;
-    document.getElementById("live-badge").style.display="none";
-    setHaChip(false,"HA: disconnected — retrying");
-    setTimeout(connectHA, 6000);
-  };
-  haWs.onerror = () => haWs.close();
+function addCustom(){
+  const name=document.getElementById("cf-name").value.trim();
+  const cat=document.getElementById("cf-cat").value;
+  const smokeMin=parseInt(document.getElementById("cf-smoke").value);
+  const smokeMax=parseInt(document.getElementById("cf-smoke-max").value)||null;
+  const time=document.getElementById("cf-time").value.trim()||"—";
+  const target=parseInt(document.getElementById("cf-target").value)||null;
+  const tip=document.getElementById("cf-tip").value.trim();
+  if(!name){showToast("Food name required","err");return;}
+  if(!cat){showToast("Pick a category","err");return;}
+  if(!smokeMin||smokeMin<100){showToast("Enter a valid smoker temp","err");return;}
+  const smokeStr=smokeMax&&smokeMax>smokeMin?`${smokeMin}–${smokeMax}°F`:`${smokeMin}°F`;
+  const entry={id:Date.now(),name,cat,smoke:smokeStr,time,internal:target?`${target}°F`:"—",tip,target,haType:target?closestHaType(target):"None",custom:true};
+  customFoods.push(entry);saveCustom();
+  ["cf-name","cf-time","cf-tip"].forEach(id=>document.getElementById(id).value="");
+  ["cf-smoke","cf-smoke-max","cf-target"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("cf-cat").value="";
+  buildChips();renderCustomList();render();
+  showToast(`"${name}" added`);
 }
 
-function setHaChip(ok, msg) {
-  const el = document.getElementById("ha-chip");
-  el.className = "ha-chip " + (ok ? "ok" : "err");
-  el.textContent = ok ? "HA: connected" : (msg || "HA: disconnected");
-  if (!ok) el.onclick = promptToken;
+function deleteCustom(id){
+  const e=customFoods.find(f=>f.id===id);
+  if(!e||!confirm(`Delete "${e.name}"?`))return;
+  customFoods=customFoods.filter(f=>f.id!==id);saveCustom();buildChips();renderCustomList();openIdx=null;render();
+  showToast(`"${e.name}" deleted`,"warn");
 }
 
-function promptToken() {
-  const tok = prompt(
-    "Paste your HA Long-Lived Access Token\n" +
-    "(HA → Profile → Long-Lived Access Tokens → Create Token)\n\n" +
-    "Once entered it is saved permanently in this browser and all future sessions on this device."
-  );
-  if (!tok || !tok.trim()) return;
-  const clean = tok.trim();
-  localStorage.setItem("ha_token", clean);
-  haToken = clean;
-  showToast("Token saved — connecting to HA...");
-  if (haWs) haWs.close();
-  connectHA();
+function closestHaType(t){
+  if(t>=200)return"Brisket";if(t>=190)return"Beef Ribs";if(t>=170)return"Chicken Well Done";
+  if(t>=160)return"Beef Well Done";if(t>=150)return"Beef Medium Well";if(t>=145)return"Lean Fish";
+  if(t>=140)return"Beef Medium";if(t>=133)return"Beef Medium Rare";if(t>=125)return"Beef Rare";
+  return"None";
 }
 
-function callService(domain, service, target, data) {
-  if (!haConnected) return;
-  haWs.send(JSON.stringify({id:msgId++,type:"call_service",domain,service,target:{entity_id:target},service_data:data||{}}));
+function renderCustomList(){
+  const el=document.getElementById("custom-list");
+  if(!customFoods.length){el.innerHTML='<div class="empty-custom">No custom entries yet.</div>';return;}
+  el.innerHTML=customFoods.map(f=>`
+    <div class="ci">
+      <div class="ci-info">
+        <div class="ci-name">${f.name} <span style="font-size:11px;color:var(--text3);">· ${f.cat}</span></div>
+        <div class="ci-meta">${f.smoke} · ${f.time} · ${f.internal}${f.tip?" · "+f.tip:""}</div>
+      </div>
+      <button class="ci-del" onclick="deleteCustom(${f.id})">✕ Delete</button>
+    </div>`).join("");
 }
 
-// ── Probe assign / clear ──────────────────────────────────
-function assign(item, probe) {
-  if (probe===1) probe1Item=item; else probe2Item=item;
-  if (haConnected) {
-    callService("input_select","select_option", probe===1?HA_ENTITIES.p1MeatType:HA_ENTITIES.p2MeatType, {option:item.haType||"None"});
-    if (item.target) callService("input_number","set_value", probe===1?HA_ENTITIES.p1TargetTemp:HA_ENTITIES.p2TargetTemp, {value:item.target});
-    callService("input_boolean","turn_off", probe===1?HA_ENTITIES.p1AlertSent:HA_ENTITIES.p2AlertSent, {});
-    showToast(`Probe ${probe} → ${item.name}${item.target?" ("+item.target+"°F)":""} — sent to HA`);
-  } else {
-    showToast(`Probe ${probe} → ${item.name} (HA offline)`, "warn");
-  }
-  updateProbeCards();
-  render();
+function toggleAdd(){
+  document.getElementById("add-toggle").classList.toggle("open");
+  document.getElementById("add-body").classList.toggle("open");
 }
 
-function clearProbe(probe) {
-  if (probe===1) { probe1Item=null; callService("input_select","select_option",HA_ENTITIES.p1MeatType,{option:"None"}); }
-  else { probe2Item=null; callService("input_select","select_option",HA_ENTITIES.p2MeatType,{option:"None"}); }
-  updateProbeCards();
-  render();
-}
-
-// ── Device status bar ────────────────────────────────────
-function updateDeviceBar() {
-  const connected = stateMap[HA_ENTITIES.connected];
-  const charging  = stateMap[HA_ENTITIES.charging];
-  const baseBat   = parseFloat(stateMap[HA_ENTITIES.baseBat]);
-  const p1Bat     = parseFloat(stateMap[HA_ENTITIES.p1Bat]);
-  const p2Bat     = parseFloat(stateMap[HA_ENTITIES.p2Bat]);
-
-  // Connection
-  const connEl = document.getElementById("ds-connected");
-  if (connected !== undefined) {
-    connEl.textContent = connected === "on" ? "✓ Connected" : "✗ Disconnected";
-    connEl.className = "dstat-value " + (connected === "on" ? "connected" : "disconnected");
-  }
-
-  // Charging
-  const chrgEl = document.getElementById("ds-charging");
-  if (charging !== undefined) {
-    chrgEl.textContent = charging === "on" ? "⚡ Charging" : "Not charging";
-    chrgEl.className = "dstat-value " + (charging === "on" ? "charging" : "");
-  }
-
-  // Battery bars helper
-  function batColor(pct) {
-    if (pct >= 60) return "#1D9E75";
-    if (pct >= 30) return "#EF9F27";
-    return "#E24B4A";
-  }
-  function batHtml(pct) {
-    if (isNaN(pct)) return "—";
-    const color = batColor(pct);
-    return `${Math.round(pct)}% <span class="bat-bar"><span class="bat-fill" style="width:${Math.min(100,pct)}%;background:${color};"></span></span>`;
-  }
-
-  document.getElementById("ds-base-bat").innerHTML = batHtml(baseBat);
-  document.getElementById("ds-p1-bat").innerHTML   = batHtml(p1Bat);
-  document.getElementById("ds-p2-bat").innerHTML   = batHtml(p2Bat);
-}
-
-// ── Probe card display ────────────────────────────────────
-function updateProbeCards() {
-  updateOne(1, probe1Item, HA_ENTITIES.p1Temp, HA_ENTITIES.p1TargetTemp);
-  updateOne(2, probe2Item, HA_ENTITIES.p2Temp, HA_ENTITIES.p2TargetTemp);
-  updateDeviceBar();
-}
-
-function updateOne(n, item, tempEnt, tgtEnt) {
-  const fEl=document.getElementById(`p${n}-food`);
-  const tEl=document.getElementById(`p${n}-temp`);
-  const sEl=document.getElementById(`p${n}-status`);
-  const pWrap=document.getElementById(`p${n}-progress-wrap`);
-  const pBar=document.getElementById(`p${n}-bar`);
-  const clrBtn=document.getElementById(`p${n}-clear`);
-  const curTemp = parseFloat(stateMap[tempEnt]) || null;
-  const target = item ? item.target : null;
-  if (!item) {
-    fEl.className="pcard-empty"; fEl.textContent="No food assigned";
-    tEl.style.display="none"; sEl.textContent=""; pWrap.style.display="none"; clrBtn.style.display="none";
-    return;
-  }
-  fEl.className="pcard-food";
-  fEl.innerHTML=`${item.name}<div class="pcard-detail">${item.smoke} · ${item.time}</div>`;
-  clrBtn.style.display="block";
-  if (curTemp!==null) { tEl.style.display="block"; tEl.textContent=Math.round(curTemp)+"°F"; }
-  else tEl.style.display="none";
-  if (target && curTemp!==null) {
-    pWrap.style.display="block";
-    const pct=Math.min(100,Math.round(((curTemp-32)/(target-32))*100));
-    pBar.style.width=pct+"%";
-    pBar.className="pcard-bar"+(pct>90?" hot":pct>75?" warm":"");
-    const rem=target-curTemp;
-    if (rem<=0) sEl.innerHTML=`<span class="status-done">✓ Ready to pull!</span>`;
-    else if (rem<=10) sEl.innerHTML=`<span class="status-warn">⚠ ${Math.round(rem)}°F to go — almost done!</span>`;
-    else { sEl.textContent=`${Math.round(rem)}°F from target (${target}°F)`; sEl.className="pcard-status"; }
-  } else if (target) {
-    pWrap.style.display="none"; sEl.textContent=`Target: ${target}°F`;
-  } else {
-    pWrap.style.display="none"; sEl.textContent="No internal temp target";
-  }
-}
-
-// ── Table render ──────────────────────────────────────────
-function tclass(smoke) {
-  const s=parseInt(smoke.replace(/[^\d]/,""));
-  return s>=375?"badge-hot":s>=250?"badge-med":"badge-low";
-}
-
-function buildMergedData() {
-  if (!customFoods.length) return COOK_DATA;
-  const merged = COOK_DATA.map(s => ({...s, items:[...s.items]}));
-  // Insert custom items into their matching category
-  customFoods.forEach(cf => {
-    const sec = merged.find(s => s.cat === cf.cat);
-    if (sec) { sec.items.push(cf); }
-    else {
-      const existing = merged.find(s => s.cat === "Custom");
-      if (existing) existing.items.push(cf);
-      else merged.push({cat:"Custom", items:[cf]});
-    }
-  });
-  return merged;
-}
-
-function render() {
-  const allData = buildMergedData();
-  let html="", total=0;
-  allData.forEach(section => {
-    if (activeCat !== "All" && activeCat !== section.cat) return;
-    const items = section.items.filter(i =>
-      !query || i.name.toLowerCase().includes(query) || section.cat.toLowerCase().includes(query)
-    );
-    if (!items.length) return;
-    total += items.length;
-    const isCustomSec = section.cat === "Custom";
-    html += `<div class="section-label">${section.cat}${isCustomSec?'<span class="custom-label-badge">Custom</span>':''}</div>
-    <div class="tbl-wrap"><table>
-    <thead><tr><th>Food</th><th>Smoker temp</th><th>Time</th><th>Internal temp</th><th>Assign to probe</th></tr></thead><tbody>`;
-    items.forEach(item => {
-      const isP1=probe1Item&&probe1Item.name===item.name;
-      const isP2=probe2Item&&probe2Item.name===item.name;
-      const rowClass="row"+(item.custom?" custom-row":"")+(isP1?" sel-p1":isP2?" sel-p2":"");
-      const badgeClass=item.custom?"badge-custom":tclass(item.smoke);
-      const idx=_itemRegistry.length; _itemRegistry.push(item);
-      html+=`<tr class="${rowClass}">
-        <td><div class="food-name">${item.name}${item.custom?'<span style="font-size:10px;margin-left:5px;padding:1px 5px;border-radius:8px;background:var(--custom-bg);color:var(--custom-text);">custom</span>':''}</div>${item.tip?`<div class="tip-txt">${item.tip}</div>`:""}</td>
-        <td><span class="badge ${badgeClass}">${item.smoke}</span></td>
-        <td>${item.time}</td>
-        <td class="int-temp">${item.internal}</td>
-        <td><div class="assign-wrap">
-          <button class="abtn p1h" onclick="assignFromIdx(${idx},1)">● P1${isP1?" ✓":""}</button>
-          <button class="abtn p2h" onclick="assignFromIdx(${idx},2)">● P2${isP2?" ✓":""}</button>
-          ${item.custom?`<button class="del-btn" onclick="deleteCustomFood(${item.id})">✕</button>`:""}
-        </div></td>
-      </tr>`;
-    });
-    html+=`</tbody></table></div>`;
-  });
-  if (!total) html=`<div class="no-results">No results${query?' for "'+query+'"':""}</div>`;
-  document.getElementById("output").innerHTML=html;
-}
-
-let _itemRegistry = [];
-window.assignFromIdx = function(idx, probe) {
-  const item = _itemRegistry[idx];
-  if (item) assign(item, probe);
-};
-
-// ── Toast ─────────────────────────────────────────────────
 let toastTimer;
-function showToast(msg, type) {
+function showToast(msg,type){
   const t=document.getElementById("toast");
-  t.textContent=msg;
-  t.className=type?"show "+type:"show";
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>t.className="",2800);
+  t.textContent=msg;t.className=type?"show "+type:"show";
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.className="",2600);
 }
 
-// ── Init ──────────────────────────────────────────────────
-loadCustom();
-buildChips();
-renderCustomList();
-render();
-connectHA();
-document.getElementById("search").oninput = e => { query=e.target.value.toLowerCase(); render(); };
-setInterval(()=>{ if(haConnected) updateProbeCards(); }, 5000);
+loadCustom();buildChips();renderCustomList();render();connectHA();
+document.getElementById("search").oninput=e=>{query=e.target.value.toLowerCase();openIdx=null;render();};
+setInterval(()=>{if(haOk)refresh();},5000);
 </script>
 </body>
 </html>
