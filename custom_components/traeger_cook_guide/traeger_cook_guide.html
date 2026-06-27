@@ -32,12 +32,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 
 /* ── Header ── */
 .hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-h1{font-size:16px;font-weight:600;display:flex;align-items:center;gap:6px;}
+h1{font-size:15px;font-weight:600;display:flex;align-items:center;gap:5px;flex-shrink:0;}
 .live{font-size:10px;padding:1px 6px;background:var(--danger);color:#fff;border-radius:10px;animation:pulse 1.5s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.ha-chip{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);cursor:pointer;white-space:nowrap;}
+.ha-chip{font-size:10px;padding:3px 8px;border-radius:20px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);cursor:pointer;white-space:nowrap;}
 .ha-chip.ok{border-color:var(--green-border);background:var(--green-bg);color:var(--green-text);}
 .ha-chip.err{border-color:var(--red-border);background:var(--red-bg);color:var(--red-text);}
+.hdr-right{display:flex;align-items:center;gap:4px;flex-wrap:nowrap;overflow:hidden;}
+.hdr-pill{font-size:10px;padding:3px 8px;border-radius:20px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);white-space:nowrap;flex-shrink:0;}
+.hdr-pill.ok{border-color:var(--green-border);background:var(--green-bg);color:var(--green-text);}
+.hdr-pill.bad{border-color:var(--red-border);background:var(--red-bg);color:var(--red-text);}
+.hdr-pill.charging{border-color:var(--blue-border);background:var(--blue-bg);color:var(--blue-text);}
 
 /* ── Device status — 3 col grid, wraps ── */
 .dev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:10px;}
@@ -159,40 +164,42 @@ input[type=number],select{font-family:inherit;font-size:13px;border:1px solid va
 </head>
 <body>
 
+<!-- Header row: title + probe charging + HA chip -->
 <div class="hdr">
   <h1>🔥 Traeger <span id="live-badge" class="live" style="display:none;">LIVE</span></h1>
-  <span id="ha-chip" class="ha-chip err" onclick="promptToken()">HA: connecting…</span>
+  <div class="hdr-right">
+    <div class="hdr-pill" id="ds-chrg">Probes: <span id="ds-chrg-v">—</span></div>
+    <span id="ha-chip" class="ha-chip err" onclick="promptToken()">HA: connecting…</span>
+  </div>
 </div>
 
-<!-- Device status — 6 pills in 3-col grid, wraps to 2 rows -->
+<!-- Device grid 3-col:
+     Row 1: Connection | P1 Temp | P1 Battery
+     Row 2: Base Battery | P2 Temp | P2 Battery -->
 <div class="dev-grid">
   <div class="dpill" id="ds-conn">
     <div class="dpill-label">Connection</div>
     <div class="dpill-val" id="ds-conn-v">—</div>
   </div>
-  <div class="dpill" id="ds-chrg">
-    <div class="dpill-label">Charging</div>
-    <div class="dpill-val" id="ds-chrg-v">—</div>
-  </div>
-  <div class="dpill" id="ds-base">
-    <div class="dpill-label">Base battery</div>
-    <div class="dpill-val" id="ds-base-v">—</div>
+  <div class="dpill" id="ds-p1t">
+    <div class="dpill-label">P1 temp</div>
+    <div class="dpill-val" id="ds-p1t-v">—</div>
   </div>
   <div class="dpill" id="ds-p1b">
     <div class="dpill-label">P1 battery</div>
     <div class="dpill-val" id="ds-p1b-v">—</div>
   </div>
-  <div class="dpill" id="ds-p1t">
-    <div class="dpill-label">P1 temp</div>
-    <div class="dpill-val" id="ds-p1t-v">—</div>
-  </div>
-  <div class="dpill" id="ds-p2b">
-    <div class="dpill-label">P2 battery</div>
-    <div class="dpill-val" id="ds-p2b-v">—</div>
+  <div class="dpill" id="ds-base">
+    <div class="dpill-label">Base battery</div>
+    <div class="dpill-val" id="ds-base-v">—</div>
   </div>
   <div class="dpill" id="ds-p2t">
     <div class="dpill-label">P2 temp</div>
     <div class="dpill-val" id="ds-p2t-v">—</div>
+  </div>
+  <div class="dpill" id="ds-p2b">
+    <div class="dpill-label">P2 battery</div>
+    <div class="dpill-val" id="ds-p2b-v">—</div>
   </div>
 </div>
 
@@ -478,15 +485,15 @@ function updateDevice(){
 
   function bc(p){return p>=60?"ok":p>=30?"warn":"bad";}
 
-  // Connection
+  // Connection — grid dpill
   const ce=document.getElementById("ds-conn");
   const cev=document.getElementById("ds-conn-v");
   if(conn!==undefined){cev.textContent=conn==="on"?"Connected":"Disconnected";ce.className="dpill "+(conn==="on"?"ok":"bad");}
 
-  // Charging
+  // Probe charging — header pill
   const che=document.getElementById("ds-chrg");
   const chev=document.getElementById("ds-chrg-v");
-  if(chrg!==undefined){chev.textContent=chrg==="on"?"Yes":"No";che.className="dpill "+(chrg==="on"?"charging":"");}
+  if(chrg!==undefined){chev.textContent=chrg==="on"?"Charging":"Not charging";che.className="hdr-pill "+(chrg==="on"?"charging":"");}
 
   // Batteries
   function setBat(pillId,valId,label,pct){
