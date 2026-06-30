@@ -153,7 +153,14 @@ input[type=number],select{font-family:inherit;font-size:13px;border:1px solid va
 .ci-name{font-weight:600;}
 .ci-meta{font-size:11px;color:var(--text2);margin-top:1px;}
 .ci-del{padding:4px 10px;font-size:11px;border:1px solid rgba(226,75,74,.2);border-radius:6px;cursor:pointer;background:none;color:var(--danger);}
+.ci-edit{padding:4px 10px;font-size:11px;border:1px solid var(--border2);border-radius:6px;cursor:pointer;background:none;color:var(--text2);}
 .empty-c{font-size:12px;color:var(--text3);font-style:italic;padding:6px 0;}
+.ci-edit-card{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rad);padding:10px;margin-bottom:4px;}
+.ci-edit-row{display:flex;gap:6px;margin-bottom:6px;}
+.ci-edit-row input,.ci-edit-row select{flex:1;}
+.ci-edit-actions{display:flex;gap:6px;justify-content:flex-end;margin-top:4px;}
+.ci-save{padding:5px 12px;font-size:12px;font-weight:600;border:none;border-radius:6px;cursor:pointer;background:var(--accent);color:#fff;}
+.ci-cancel{padding:5px 12px;font-size:12px;border:1px solid var(--border2);border-radius:6px;cursor:pointer;background:none;color:var(--text2);}
 
 /* ── Toast ── */
 #toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%) translateY(10px);background:#1a1a1a;color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:999;white-space:nowrap;}
@@ -335,6 +342,10 @@ const COOK_DATA=[
     {name:"Shrimp",smoke:"225°F",time:"30–45 min",internal:"145°F",tip:"Shell on retains moisture",target:145,haType:"Lean Fish"},
     {name:"Lobster tails",smoke:"275°F",time:"30–45 min",internal:"145°F",tip:"Butter baste",target:145,haType:"Lean Fish"},
     {name:"Scallops",smoke:"225°F",time:"45–60 min",internal:"130°F",tip:"Dry well before smoking",target:130,haType:"Salmon Medium"},
+    {name:"Tinapa – Bangus (Milkfish)",smoke:"200°F",time:"2–3 hrs",internal:"145°F",tip:"Score skin, brine 6–8 hrs, air dry overnight before smoking",target:145,haType:"Lean Fish"},
+    {name:"Tinapa – Galunggong (Round Scad)",smoke:"190°F",time:"1–1.5 hrs",internal:"145°F",tip:"Smaller fish, shorter smoke; guava or mango wood preferred",target:145,haType:"Lean Fish"},
+    {name:"Tinapa – Bonita (Skipjack Tuna)",smoke:"200°F",time:"2.5–3 hrs",internal:"145°F",tip:"Strong flavor; use a longer vinegar brine to mellow it",target:145,haType:"Lean Fish"},
+    {name:"Tinapa – Mackerel (Hasa-Hasa)",smoke:"195°F",time:"1.5–2 hrs",internal:"145°F",tip:"Oily fish, dry cure only; fan-dry before smoking",target:145,haType:"Lean Fish"},
   ]},
   {cat:"Lamb",items:[
     {name:"Leg of lamb",smoke:"250°F",time:"4–6 hrs",internal:"145°F",tip:"",target:145,haType:"Beef Medium"},
@@ -389,6 +400,7 @@ const ENT={
 
 let haWs=null,haOk=false,haToken=null,msgId=1,states={};
 let p1Item=null,p2Item=null,activeCat="All",query="",openIdx=null;
+let p1Start=null,p2Start=null,p1Done=false,p2Done=false;
 let customFoods=[],_reg=[];
 const LS_KEY="traeger_custom_v2";
 
@@ -454,7 +466,8 @@ function svc(domain,service,target,data){
 }
 
 function assign(item,probe){
-  if(probe===1)p1Item=item;else p2Item=item;
+  if(probe===1){p1Item=item;p1Start=Date.now();p1Done=false;}
+  else{p2Item=item;p2Start=Date.now();p2Done=false;}
   if(haOk){
     svc("input_select","select_option",probe===1?ENT.p1M:ENT.p2M,{option:item.haType||"None"});
     if(item.target)svc("input_number","set_value",probe===1?ENT.p1N:ENT.p2N,{value:item.target});
@@ -465,8 +478,8 @@ function assign(item,probe){
 }
 
 function clearProbe(probe){
-  if(probe===1){p1Item=null;svc("input_select","select_option",ENT.p1M,{option:"None"});}
-  else{p2Item=null;svc("input_select","select_option",ENT.p2M,{option:"None"});}
+  if(probe===1){p1Item=null;p1Start=null;p1Done=false;svc("input_select","select_option",ENT.p1M,{option:"None"});}
+  else{p2Item=null;p2Start=null;p2Done=false;svc("input_select","select_option",ENT.p2M,{option:"None"});}
   refresh();render();
 }
 
@@ -506,35 +519,40 @@ function updateDevice(){
   setBat("ds-p2b","ds-p2b-v","P2",p2b);
 
   // Probe temps in device bar
+  const connOk=conn==="on";
   const p1tp=document.getElementById("ds-p1t");
   const p1tv=document.getElementById("ds-p1t-v");
-  if(!isNaN(p1t)){p1tv.textContent=Math.round(p1t)+"°F";p1tp.className="dpill";}
+  if(connOk&&!isNaN(p1t)){p1tv.textContent=Math.round(p1t)+"°F";p1tp.className="dpill";}
+  else{p1tv.textContent="—";p1tp.className="dpill";}
 
   const p2tp=document.getElementById("ds-p2t");
   const p2tv=document.getElementById("ds-p2t-v");
-  if(!isNaN(p2t)){p2tv.textContent=Math.round(p2t)+"°F";p2tp.className="dpill";}
+  if(connOk&&!isNaN(p2t)){p2tv.textContent=Math.round(p2t)+"°F";p2tp.className="dpill";}
+  else{p2tv.textContent="—";p2tp.className="dpill";}
 }
 
 function updateProbes(){
-  updateOneProbe(1,p1Item,ENT.p1T,ENT.p1N);
-  updateOneProbe(2,p2Item,ENT.p2T,ENT.p2N);
+  const connOk=states[ENT.conn]==="on";
+  updateOneProbe(1,p1Item,ENT.p1T,ENT.p1N,connOk,p1Start,d=>p1Done=d,()=>p1Done);
+  updateOneProbe(2,p2Item,ENT.p2T,ENT.p2N,connOk,p2Start,d=>p2Done=d,()=>p2Done);
 }
 
-function updateOneProbe(n,item,tEnt,nEnt){
+function updateOneProbe(n,item,tEnt,nEnt,connOk,startTime,setDone,getDone){
   const fEl=document.getElementById(`p${n}-food`);
   const tEl=document.getElementById(`p${n}-temp`);
   const sEl=document.getElementById(`p${n}-stat`);
   const bw=document.getElementById(`p${n}-bw`);
   const bar=document.getElementById(`p${n}-bar`);
   const clr=document.getElementById(`p${n}-clr`);
-  const cur=parseFloat(states[tEnt])||null;
+  const cur=connOk?(parseFloat(states[tEnt])||null):null;
   const tgt=item?item.target:null;
   if(!item){
     fEl.className="pc-empty";fEl.textContent="No food assigned";
     tEl.style.display="none";sEl.textContent="";bw.style.display="none";clr.style.display="none";return;
   }
   fEl.className="pc-food";
-  fEl.innerHTML=`${item.name}<div class="pc-detail">${item.smoke} · ${item.time}</div>`;
+  const elapsed=startTime?fmtElapsed(Date.now()-startTime):null;
+  fEl.innerHTML=`${item.name}<div class="pc-detail">${item.smoke} · ${item.time}${elapsed?` · ⏱ ${elapsed}`:""}</div>`;
   clr.style.display="block";
   if(cur!==null){tEl.style.display="block";tEl.textContent=Math.round(cur)+"°F";}else tEl.style.display="none";
   if(tgt&&cur!==null){
@@ -543,14 +561,47 @@ function updateOneProbe(n,item,tEnt,nEnt){
     bar.style.width=pct+"%";
     bar.className="pc-fill"+(pct>90?" hot":pct>75?" warm":"");
     const rem=tgt-cur;
-    if(rem<=0)sEl.innerHTML=`<span class="st-done">✓ Ready to pull!</span>`;
+    if(rem<=0){
+      sEl.innerHTML=`<span class="st-done">✓ Ready to pull!${elapsed?` (${elapsed})`:""}</span>`;
+      if(!getDone()){setDone(true);probeDone(n,item);}
+    }
     else if(rem<=10)sEl.innerHTML=`<span class="st-warn">⚠ ${Math.round(rem)}°F to go!</span>`;
     else{sEl.textContent=`${Math.round(rem)}°F from target (${tgt}°F)`;sEl.className="pc-stat";}
-  }else if(tgt){bw.style.display="none";sEl.textContent=`Target: ${tgt}°F`;}
-  else{bw.style.display="none";sEl.textContent="No temp target";}
+  }else if(tgt){bw.style.display="none";sEl.textContent=connOk?`Target: ${tgt}°F`:"Probe disconnected";sEl.className=connOk?"pc-stat":"pc-stat st-warn";}
+  else{bw.style.display="none";sEl.textContent=connOk?"No temp target":"Probe disconnected";sEl.className=connOk?"pc-stat":"pc-stat st-warn";}
 }
 
-function tc(s){const v=parseInt(s.replace(/[^\d]/,""));return v>=375?"badge-hot":v>=250?"badge-med":"badge-low";}
+function fmtElapsed(ms){
+  const totalMin=Math.floor(ms/60000);
+  const h=Math.floor(totalMin/60),m=totalMin%60;
+  return h>0?`${h}h ${m}m`:`${m}m`;
+}
+
+let audioCtx=null;
+function playAlert(){
+  try{
+    audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+    [0,300,600].forEach(delay=>{
+      setTimeout(()=>{
+        const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+        o.type="sine";o.frequency.value=880;
+        o.connect(g);g.connect(audioCtx.destination);
+        g.gain.setValueAtTime(0.25,audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.25);
+        o.start();o.stop(audioCtx.currentTime+0.25);
+      },delay);
+    });
+  }catch(e){}
+  if(navigator.vibrate)navigator.vibrate([200,100,200,100,200]);
+}
+
+function probeDone(n,item){
+  showToast(`🔥 P${n} "${item.name}" hit target temp — done!`,"warn");
+  playAlert();
+  if(window.Notification&&Notification.permission==="granted"){
+    new Notification("Traeger Cook Guide",{body:`P${n} "${item.name}" reached target temp — pull it!`});
+  }
+}
 
 function buildMerged(){
   if(!customFoods.length)return COOK_DATA;
@@ -660,17 +711,95 @@ function closestHaType(t){
   return"None";
 }
 
+let editingId=null;
+
 function renderCustomList(){
   const el=document.getElementById("custom-list");
   if(!customFoods.length){el.innerHTML='<div class="empty-c">No custom entries yet.</div>';return;}
-  el.innerHTML=customFoods.map(f=>`
+  el.innerHTML=customFoods.map(f=>{
+    if(editingId===f.id){
+      const smokeParts=(f.smoke||"").replace("°F","").split("–");
+      const smokeMin=parseInt(smokeParts[0])||"";
+      const smokeMax=smokeParts[1]?parseInt(smokeParts[1]):"";
+      return `
+      <div class="ci-edit-card">
+        <div class="ci-edit-row">
+          <input type="text" id="ce-name-${f.id}" value="${f.name.replace(/"/g,'&quot;')}" placeholder="Food name">
+        </div>
+        <div class="ci-edit-row">
+          <select id="ce-cat-${f.id}">
+            <option value="">— pick —</option>
+            <option${f.cat==="Beef"?" selected":""}>Beef</option>
+            <option${f.cat==="Pork"?" selected":""}>Pork</option>
+            <option${f.cat==="Poultry"?" selected":""}>Poultry</option>
+            <option${f.cat==="Seafood"?" selected":""}>Seafood</option>
+            <option${f.cat==="Lamb"?" selected":""}>Lamb</option>
+            <option${f.cat==="Vegetables"?" selected":""}>Vegetables</option>
+            <option${f.cat==="Sides & Extras"?" selected":""}>Sides &amp; Extras</option>
+            <option${f.cat==="Desserts & Bread"?" selected":""}>Desserts &amp; Bread</option>
+            <option${f.cat==="Custom"?" selected":""}>Custom</option>
+          </select>
+        </div>
+        <div class="ci-edit-row">
+          <input type="number" id="ce-smoke-${f.id}" value="${smokeMin}" placeholder="Smoker temp">
+          <input type="number" id="ce-smoke-max-${f.id}" value="${smokeMax}" placeholder="Max (opt)">
+        </div>
+        <div class="ci-edit-row">
+          <input type="text" id="ce-time-${f.id}" value="${(f.time||"").replace(/"/g,'&quot;')}" placeholder="Cook time">
+          <input type="number" id="ce-target-${f.id}" value="${f.target||""}" placeholder="Internal temp">
+        </div>
+        <div class="ci-edit-row">
+          <input type="text" id="ce-tip-${f.id}" value="${(f.tip||"").replace(/"/g,'&quot;')}" placeholder="Tip (optional)">
+        </div>
+        <div class="ci-edit-actions">
+          <button class="ci-cancel" onclick="cancelEdit()">Cancel</button>
+          <button class="ci-save" onclick="saveEdit(${f.id})">Save</button>
+        </div>
+      </div>`;
+    }
+    return `
     <div class="ci">
       <div class="ci-info">
         <div class="ci-name">${f.name} <span style="font-size:11px;color:var(--text3);">· ${f.cat}</span></div>
         <div class="ci-meta">${f.smoke} · ${f.time} · ${f.internal}${f.tip?" · "+f.tip:""}</div>
       </div>
+      <button class="ci-edit" onclick="editCustom(${f.id})">✎ Edit</button>
       <button class="ci-del" onclick="deleteCustom(${f.id})">✕ Delete</button>
-    </div>`).join("");
+    </div>`;
+  }).join("");
+}
+
+function editCustom(id){
+  editingId=id;
+  renderCustomList();
+}
+
+function cancelEdit(){
+  editingId=null;
+  renderCustomList();
+}
+
+function saveEdit(id){
+  const e=customFoods.find(f=>f.id===id);
+  if(!e)return;
+  const name=document.getElementById(`ce-name-${id}`).value.trim();
+  const cat=document.getElementById(`ce-cat-${id}`).value;
+  const smokeMin=parseInt(document.getElementById(`ce-smoke-${id}`).value);
+  const smokeMax=parseInt(document.getElementById(`ce-smoke-max-${id}`).value)||null;
+  const time=document.getElementById(`ce-time-${id}`).value.trim()||"—";
+  const target=parseInt(document.getElementById(`ce-target-${id}`).value)||null;
+  const tip=document.getElementById(`ce-tip-${id}`).value.trim();
+  if(!name){showToast("Food name required","err");return;}
+  if(!cat){showToast("Pick a category","err");return;}
+  if(!smokeMin||smokeMin<100){showToast("Enter a valid smoker temp","err");return;}
+  const smokeStr=smokeMax&&smokeMax>smokeMin?`${smokeMin}–${smokeMax}°F`:`${smokeMin}°F`;
+  e.name=name;e.cat=cat;e.smoke=smokeStr;e.time=time;
+  e.internal=target?`${target}°F`:"—";e.tip=tip;e.target=target;
+  e.haType=target?closestHaType(target):"None";
+  saveCustom();
+  editingId=null;
+  buildChips();renderCustomList();render();
+  showToast(`"${name}" updated`);
 }
 
 function toggleAdd(){
@@ -685,6 +814,7 @@ function showToast(msg,type){
   clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.className="",2600);
 }
 
+if(window.Notification&&Notification.permission==="default")Notification.requestPermission();
 loadCustom();buildChips();renderCustomList();render();connectHA();
 document.getElementById("search").oninput=e=>{query=e.target.value.toLowerCase();openIdx=null;render();};
 setInterval(()=>{if(haOk)refresh();},5000);
