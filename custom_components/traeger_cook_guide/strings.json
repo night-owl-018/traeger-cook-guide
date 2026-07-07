@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Traeger Cook Guide",
-        "description": "Click **Submit** to install.\n\nThis will automatically:\n- Copy the interactive cook guide to your www folder\n- Create all 6 required helpers\n- Create all 9 automations\n\nAfter install, you'll get a notification with the one dashboard card YAML to paste."
+        "description": "Click **Submit** to install.\n\nThis will automatically:\n- Copy the interactive cook guide to your www folder\n- Create all 14 required helpers (4 probes + pit control)\n- Create all 18 automations (per-probe alerts + pit drift)\n\nAfter install, you'll get a notification with the one dashboard card YAML to paste.\n\nRequires a Govee H5198 thermometer already set up in Home Assistant."
       }
     },
     "abort": {
