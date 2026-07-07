@@ -1,4 +1,4 @@
-# 🔥 Traeger Cook Guide for Home Assistant
+#  🔥 Traeger Cookbook for Home Assistant — Govee H5198 Edition
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
 [![version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/night-owl-018/traeger-cook-guide/releases)
