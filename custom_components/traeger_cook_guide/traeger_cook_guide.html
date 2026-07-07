@@ -39,39 +39,52 @@ h1{font-size:15px;font-weight:600;display:flex;align-items:center;gap:5px;flex-s
 .ha-chip.ok{border-color:var(--green-border);background:var(--green-bg);color:var(--green-text);}
 .ha-chip.err{border-color:var(--red-border);background:var(--red-bg);color:var(--red-text);}
 .hdr-right{display:flex;align-items:center;gap:4px;flex-wrap:nowrap;overflow:hidden;}
-.hdr-pill{font-size:10px;padding:3px 8px;border-radius:20px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);white-space:nowrap;flex-shrink:0;}
-.hdr-pill.ok{border-color:var(--green-border);background:var(--green-bg);color:var(--green-text);}
-.hdr-pill.bad{border-color:var(--red-border);background:var(--red-bg);color:var(--red-text);}
-.hdr-pill.charging{border-color:var(--blue-border);background:var(--blue-bg);color:var(--blue-text);}
 
-/* ── Device status — 3 col grid, wraps ── */
-.dev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:10px;}
-.dpill{display:flex;flex-direction:column;gap:1px;padding:7px 9px;border-radius:var(--rad);border:1px solid var(--border2);background:var(--bg2);}
-.dpill.ok{background:var(--green-bg);border-color:var(--green-border);}
-.dpill.warn{background:var(--amber-bg);border-color:var(--amber-border);}
-.dpill.bad{background:var(--red-bg);border-color:var(--red-border);}
-.dpill.charging{background:var(--blue-bg);border-color:var(--blue-border);}
-.dpill-label{font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);}
-.dpill.ok .dpill-label{color:var(--green-text);opacity:.7;}
-.dpill.warn .dpill-label{color:var(--amber-text);opacity:.7;}
-.dpill.bad .dpill-label{color:var(--red-text);opacity:.7;}
-.dpill.charging .dpill-label{color:var(--blue-text);opacity:.7;}
-.dpill-val{font-size:13px;font-weight:600;color:var(--text);}
-.dpill.ok .dpill-val{color:var(--green-text);}
-.dpill.warn .dpill-val{color:var(--amber-text);}
-.dpill.bad .dpill-val{color:var(--red-text);}
-.dpill.charging .dpill-val{color:var(--blue-text);}
+/* ── Thermometer connection strip (derived from probe availability) ── */
+.therm{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;padding:8px 11px;border-radius:var(--rad);margin-bottom:10px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);}
+.therm .therm-dot{width:8px;height:8px;border-radius:50%;background:var(--text3);flex-shrink:0;}
+.therm.ok{background:var(--green-bg);border-color:var(--green-border);color:var(--green-text);}
+.therm.ok .therm-dot{background:var(--success);}
+.therm.bad{background:var(--red-bg);border-color:var(--red-border);color:var(--red-text);}
+.therm.bad .therm-dot{background:var(--danger);}
+.therm .therm-n{margin-left:auto;font-weight:500;opacity:.85;}
 
-/* ── Probe cards ── */
+/* ── Pit / grill hero card ── */
+.pit-card{border:1px solid var(--border2);border-radius:var(--rad-lg);background:var(--bg2);padding:12px;margin-bottom:10px;}
+.pit-main{display:flex;align-items:center;gap:10px;}
+.pit-flame{font-size:22px;line-height:1;flex-shrink:0;}
+.pit-info{flex:1;min-width:0;}
+.pit-lbl{font-size:10px;font-weight:600;letter-spacing:.05em;color:var(--text3);text-transform:uppercase;}
+.pit-line{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.pit-temp{font-size:24px;font-weight:700;color:var(--text);line-height:1.1;}
+.pit-stat{font-size:12px;font-weight:600;color:var(--text2);}
+.pit-stat.hold{color:var(--success);}
+.pit-stat.hot{color:var(--danger);}
+.pit-stat.cold{color:var(--blue-text);}
+.pit-stat.warn{color:#BA7517;}
+.pit-target-btn{flex-shrink:0;padding:6px 10px;font-size:11px;font-weight:600;border:1px solid var(--border2);border-radius:8px;background:var(--bg);color:var(--text2);cursor:pointer;-webkit-tap-highlight-color:transparent;white-space:nowrap;}
+.pit-sel{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+.pit-sel-lbl{font-size:11px;color:var(--text3);margin-right:2px;}
+.pit-sel button{padding:4px 11px;font-size:11px;font-weight:600;border-radius:20px;border:1px solid var(--border2);background:var(--bg);color:var(--text2);cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.pit-sel button.active{background:var(--custom-text);color:#fff;border-color:var(--custom-text);}
+
+/* ── Probe cards — 2×2 grid ── */
 .probes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
 .pc{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rad-lg);padding:10px 12px;position:relative;}
 .pc.p1{border-left:3px solid var(--green-border);}
 .pc.p2{border-left:3px solid var(--blue-border);}
-.pc-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:4px;}
-.pc-food{font-size:13px;font-weight:600;line-height:1.3;padding-right:28px;}
+.pc.p3{border-left:3px solid var(--amber-border);}
+.pc.p4{border-left:3px solid var(--custom-border);}
+.pc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;min-height:14px;}
+.pc-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);}
+.pc-pitbadge{font-size:9px;font-weight:700;padding:1px 7px;border-radius:8px;background:var(--custom-bg);color:var(--custom-text);border:1px solid var(--custom-border);text-transform:uppercase;letter-spacing:.04em;}
+.pc-food{font-size:13px;font-weight:600;line-height:1.3;padding-right:24px;}
+.pc-mon{font-size:13px;font-weight:600;color:var(--custom-text);padding-right:24px;}
 .pc-detail{font-size:10px;color:var(--text2);margin-top:1px;}
 .pc-temp{font-size:22px;font-weight:700;color:var(--accent);margin:4px 0 1px;line-height:1.1;}
+.pc-temp.dim{color:var(--text3);font-weight:600;font-size:16px;}
 .pc-stat{font-size:11px;margin-top:2px;}
+.pc-stat.dim{color:var(--text3);}
 .st-warn{color:#BA7517;font-weight:600;}
 .st-done{color:var(--success);font-weight:600;}
 .pc-bar{height:3px;background:var(--bg3);border-radius:2px;margin-top:6px;overflow:hidden;}
@@ -103,9 +116,13 @@ input[type=number],select{font-family:inherit;font-size:13px;border:1px solid va
 .food-row:active{background:var(--bg2);}
 .food-row.sel-p1{background:var(--green-bg);}
 .food-row.sel-p2{background:var(--blue-bg);}
+.food-row.sel-p3{background:var(--amber-bg);}
+.food-row.sel-p4{background:var(--custom-bg);}
 .food-row.is-open{background:var(--bg2);border-radius:var(--rad) var(--rad) 0 0;}
 .food-row.sel-p1.is-open{background:var(--green-bg);}
 .food-row.sel-p2.is-open{background:var(--blue-bg);}
+.food-row.sel-p3.is-open{background:var(--amber-bg);}
+.food-row.sel-p4.is-open{background:var(--custom-bg);}
 .food-row.custom-row{border-left:2px solid var(--custom-border);padding-left:8px;}
 
 /* Food name — takes all space */
@@ -113,11 +130,14 @@ input[type=number],select{font-family:inherit;font-size:13px;border:1px solid va
 .fn-name{font-size:14px;font-weight:500;line-height:1.3;}
 .fn-tip{font-size:11px;color:var(--text3);margin-top:1px;}
 
-/* P1/P2 buttons — always visible, right side */
-.abtns{display:flex;gap:5px;flex-shrink:0;}
-.abtn{padding:6px 12px;font-size:12px;font-weight:600;border:1px solid var(--border2);border-radius:8px;cursor:pointer;background:var(--bg2);color:var(--text2);-webkit-tap-highlight-color:transparent;white-space:nowrap;}
+/* P1–P4 buttons — always visible, right side */
+.abtns{display:flex;gap:4px;flex-shrink:0;}
+.abtn{padding:6px 9px;font-size:11px;font-weight:600;border:1px solid var(--border2);border-radius:8px;cursor:pointer;background:var(--bg2);color:var(--text2);-webkit-tap-highlight-color:transparent;white-space:nowrap;}
 .abtn.p1a{background:var(--green-bg);color:var(--green-text);border-color:var(--green-border);}
 .abtn.p2a{background:var(--blue-bg);color:var(--blue-text);border-color:var(--blue-border);}
+.abtn.p3a{background:var(--amber-bg);color:var(--amber-text);border-color:var(--amber-border);}
+.abtn.p4a{background:var(--custom-bg);color:var(--custom-text);border-color:var(--custom-border);}
+.abtn.pit{color:var(--text3);cursor:default;}
 .del-btn{padding:5px 8px;font-size:12px;border:1px solid rgba(226,75,74,.2);border-radius:8px;cursor:pointer;background:none;color:var(--danger);}
 
 /* Expand detail — shows on tap */
@@ -174,49 +194,44 @@ input[type=number],select{font-family:inherit;font-size:13px;border:1px solid va
 </head>
 <body>
 
-<!-- Header row: title + probe charging + HA chip -->
+<!-- Header row: title + HA auth chip -->
 <div class="hdr">
   <h1>🔥 Traeger <span id="live-badge" class="live" style="display:none;">LIVE</span></h1>
   <div class="hdr-right">
-    <div class="hdr-pill" id="ds-chrg">Probes: <span id="ds-chrg-v">—</span></div>
     <span id="ha-chip" class="ha-chip err" onclick="promptToken()">HA: connecting…</span>
   </div>
 </div>
 
-<!-- Device grid 3-col:
-     Row 1: Connection | P1 Temp | P1 Battery
-     Row 2: Base Battery | P2 Temp | P2 Battery -->
-<div class="dev-grid">
-  <div class="dpill" id="ds-conn">
-    <div class="dpill-label">Connection</div>
-    <div class="dpill-val" id="ds-conn-v">—</div>
+<!-- Thermometer connection strip (derived — no Govee connection entity exists) -->
+<div id="therm-strip" class="therm"><span class="therm-dot"></span> Thermometer connecting…</div>
+
+<!-- Grill / pit hero card -->
+<div class="pit-card">
+  <div class="pit-main">
+    <span class="pit-flame">🔥</span>
+    <div class="pit-info">
+      <div class="pit-lbl" id="pit-lbl">GRILL · NO PIT PROBE</div>
+      <div class="pit-line">
+        <span class="pit-temp" id="pit-temp">—</span>
+        <span class="pit-stat" id="pit-stat">Pick a probe below</span>
+      </div>
+    </div>
+    <button class="pit-target-btn" id="pit-target-btn" onclick="setPitTarget()">Target 225°F</button>
   </div>
-  <div class="dpill" id="ds-p1t">
-    <div class="dpill-label">P1 temp</div>
-    <div class="dpill-val" id="ds-p1t-v">—</div>
-  </div>
-  <div class="dpill" id="ds-p1b">
-    <div class="dpill-label">P1 battery</div>
-    <div class="dpill-val" id="ds-p1b-v">—</div>
-  </div>
-  <div class="dpill" id="ds-base">
-    <div class="dpill-label">Base battery</div>
-    <div class="dpill-val" id="ds-base-v">—</div>
-  </div>
-  <div class="dpill" id="ds-p2t">
-    <div class="dpill-label">P2 temp</div>
-    <div class="dpill-val" id="ds-p2t-v">—</div>
-  </div>
-  <div class="dpill" id="ds-p2b">
-    <div class="dpill-label">P2 battery</div>
-    <div class="dpill-val" id="ds-p2b-v">—</div>
+  <div class="pit-sel">
+    <span class="pit-sel-lbl">Pit probe</span>
+    <button data-pit="0" onclick="setPit(0)">Off</button>
+    <button data-pit="1" onclick="setPit(1)">P1</button>
+    <button data-pit="2" onclick="setPit(2)">P2</button>
+    <button data-pit="3" onclick="setPit(3)">P3</button>
+    <button data-pit="4" onclick="setPit(4)">P4</button>
   </div>
 </div>
 
 <!-- Probe cards -->
 <div class="probes">
   <div class="pc p1">
-    <div class="pc-lbl">Probe 1</div>
+    <div class="pc-head"><span class="pc-lbl">Probe 1</span><span id="p1-pit" class="pc-pitbadge" style="display:none;">🔥 Pit</span></div>
     <div id="p1-food" class="pc-empty">No food assigned</div>
     <div id="p1-temp" class="pc-temp" style="display:none;"></div>
     <div id="p1-stat" class="pc-stat"></div>
@@ -224,12 +239,28 @@ input[type=number],select{font-family:inherit;font-size:13px;border:1px solid va
     <button id="p1-clr" class="pc-clear" style="display:none;" onclick="clearProbe(1)">✕</button>
   </div>
   <div class="pc p2">
-    <div class="pc-lbl">Probe 2</div>
+    <div class="pc-head"><span class="pc-lbl">Probe 2</span><span id="p2-pit" class="pc-pitbadge" style="display:none;">🔥 Pit</span></div>
     <div id="p2-food" class="pc-empty">No food assigned</div>
     <div id="p2-temp" class="pc-temp" style="display:none;"></div>
     <div id="p2-stat" class="pc-stat"></div>
     <div class="pc-bar" id="p2-bw" style="display:none;"><div id="p2-bar" class="pc-fill" style="width:0%"></div></div>
     <button id="p2-clr" class="pc-clear" style="display:none;" onclick="clearProbe(2)">✕</button>
+  </div>
+  <div class="pc p3">
+    <div class="pc-head"><span class="pc-lbl">Probe 3</span><span id="p3-pit" class="pc-pitbadge" style="display:none;">🔥 Pit</span></div>
+    <div id="p3-food" class="pc-empty">No food assigned</div>
+    <div id="p3-temp" class="pc-temp" style="display:none;"></div>
+    <div id="p3-stat" class="pc-stat"></div>
+    <div class="pc-bar" id="p3-bw" style="display:none;"><div id="p3-bar" class="pc-fill" style="width:0%"></div></div>
+    <button id="p3-clr" class="pc-clear" style="display:none;" onclick="clearProbe(3)">✕</button>
+  </div>
+  <div class="pc p4">
+    <div class="pc-head"><span class="pc-lbl">Probe 4</span><span id="p4-pit" class="pc-pitbadge" style="display:none;">🔥 Pit</span></div>
+    <div id="p4-food" class="pc-empty">No food assigned</div>
+    <div id="p4-temp" class="pc-temp" style="display:none;"></div>
+    <div id="p4-stat" class="pc-stat"></div>
+    <div class="pc-bar" id="p4-bw" style="display:none;"><div id="p4-bar" class="pc-fill" style="width:0%"></div></div>
+    <button id="p4-clr" class="pc-clear" style="display:none;" onclick="clearProbe(4)">✕</button>
   </div>
 </div>
 
@@ -399,27 +430,49 @@ const COOK_DATA=[
   ]},
 ];
 
+/* ── Entity map ──────────────────────────────────────────────
+   sensor.govee_* are provided by your Govee integration (read-only).
+   input_* helpers are created by the Traeger Cook Guide integration.
+   No battery / connection / charging entities — Govee doesn't report them;
+   connection is DERIVED from probe temperature availability instead.        */
 const ENT={
-  p1T:"sensor.bt_proxy_hopepop_probe_1_temp",
-  p2T:"sensor.bt_proxy_hopepop_probe_2_temp",
-  p1M:"input_select.probe_1_meat_type",
-  p2M:"input_select.probe_2_meat_type",
-  p1N:"input_number.probe_1_target_temp",
-  p2N:"input_number.probe_2_target_temp",
-  p1A:"input_boolean.probe_1_alert_sent",
-  p2A:"input_boolean.probe_2_alert_sent",
-  conn:"binary_sensor.bt_proxy_hopepop_connected",
-  chrg:"binary_sensor.bt_proxy_hopepop_probes_charging",
-  base:"sensor.bt_proxy_hopepop_base_battery",
-  p1B:"sensor.bt_proxy_hopepop_probe_1_battery",
-  p2B:"sensor.bt_proxy_hopepop_probe_2_battery",
+  // Live probe temps (Govee, read-only)
+  p1T:"sensor.govee_meat_thermometer_temperature_probe_1",
+  p2T:"sensor.govee_meat_thermometer_temperature_probe_2",
+  p3T:"sensor.govee_meat_thermometer_temperature_probe_3",
+  p4T:"sensor.govee_meat_thermometer_temperature_probe_4",
+  // High-temp alarm state (Govee, read-only) — used by HA automations as a backstop
+  p1Alarm:"sensor.govee_meat_thermometer_temperature_alarm_probe_1",
+  p2Alarm:"sensor.govee_meat_thermometer_temperature_alarm_probe_2",
+  p3Alarm:"sensor.govee_meat_thermometer_temperature_alarm_probe_3",
+  p4Alarm:"sensor.govee_meat_thermometer_temperature_alarm_probe_4",
+  // Low-temp alarm state (Govee, read-only)
+  p1LowAlarm:"sensor.govee_meat_thermometer_low_temperature_alarm_probe_1",
+  p2LowAlarm:"sensor.govee_meat_thermometer_low_temperature_alarm_probe_2",
+  p3LowAlarm:"sensor.govee_meat_thermometer_low_temperature_alarm_probe_3",
+  p4LowAlarm:"sensor.govee_meat_thermometer_low_temperature_alarm_probe_4",
+  // Per-probe helpers (writable) — created by the integration
+  p1M:"input_select.probe_1_meat_type", p2M:"input_select.probe_2_meat_type",
+  p3M:"input_select.probe_3_meat_type", p4M:"input_select.probe_4_meat_type",
+  p1N:"input_number.probe_1_target_temp", p2N:"input_number.probe_2_target_temp",
+  p3N:"input_number.probe_3_target_temp", p4N:"input_number.probe_4_target_temp",
+  p1A:"input_boolean.probe_1_alert_sent", p2A:"input_boolean.probe_2_alert_sent",
+  p3A:"input_boolean.probe_3_alert_sent", p4A:"input_boolean.probe_4_alert_sent",
+  // Pit / grill control (writable)
+  pitProbe:"input_select.pit_probe",       // Off / P1 / P2 / P3 / P4
+  pitTarget:"input_number.pit_target_temp",
 };
 
+const PROBES=[1,2,3,4];
+const PIT_BAND=25; // °F tolerance before a hot/cold pit alert
+
 let haWs=null,haOk=false,haToken=null,msgId=1,states={};
-let p1Item=null,p2Item=null,activeCat="All",query="",openIdx=null;
-let p1Start=null,p2Start=null,p1Done=false,p2Done=false;
-let customFoods=[],_reg=[];
+let probeState={1:{item:null,start:null,done:false},2:{item:null,start:null,done:false},3:{item:null,start:null,done:false},4:{item:null,start:null,done:false}};
+let pitProbe=0,pitTarget=225;
+let activeCat="All",query="",openIdx=null;
+let customFoods=[],_reg=[],_synced=false;
 const LS_KEY="traeger_custom_v2";
+const LS_PIT="traeger_pit_v1";
 
 // ── PERMANENT TOKEN ────────────────────────────────────
 // Leave empty to be prompted once per browser.
@@ -429,6 +482,17 @@ const HA_TOKEN="";
 
 function loadCustom(){try{customFoods=JSON.parse(localStorage.getItem(LS_KEY))||[];}catch{customFoods=[];}}
 function saveCustom(){localStorage.setItem(LS_KEY,JSON.stringify(customFoods));}
+function loadPit(){try{const p=JSON.parse(localStorage.getItem(LS_PIT));if(p){pitProbe=p.probe||0;pitTarget=p.target||225;}}catch{}}
+function savePit(){localStorage.setItem(LS_PIT,JSON.stringify({probe:pitProbe,target:pitTarget}));}
+
+// A probe is "live" only if its Govee sensor is a real number (not unavailable/unknown).
+function liveTemp(n){
+  const v=states[ENT["p"+n+"T"]];
+  if(v===undefined||v==="unavailable"||v==="unknown")return null;
+  const f=parseFloat(v);
+  return isNaN(f)?null:f;
+}
+function anyLive(){return PROBES.some(n=>liveTemp(n)!==null);}
 
 function connectHA(){
   const proto=location.protocol==="https:"?"wss":"ws";
@@ -453,11 +517,22 @@ function connectHA(){
       const nd=m.event.data.new_state;
       if(nd){states[nd.entity_id]=nd.state;refresh();}
     }else if(m.type==="result"&&Array.isArray(m.result)){
-      m.result.forEach(s=>{states[s.entity_id]=s.state;});refresh();
+      m.result.forEach(s=>{states[s.entity_id]=s.state;});
+      syncFromHA();refresh();
     }
   };
-  haWs.onclose=()=>{haOk=false;document.getElementById("live-badge").style.display="none";setChip(false,"HA disconnected");setTimeout(connectHA,6000);};
+  haWs.onclose=()=>{haOk=false;document.getElementById("live-badge").style.display="none";setChip(false,"HA disconnected");updateConn();setTimeout(connectHA,6000);};
   haWs.onerror=()=>haWs.close();
+}
+
+// Adopt pit settings from HA helpers once, on first full state load (HA is source of truth).
+function syncFromHA(){
+  if(_synced)return;
+  const pp=states[ENT.pitProbe];
+  if(pp!==undefined){pitProbe=(!pp||pp==="Off")?0:(parseInt(String(pp).replace(/\D/g,""))||0);}
+  const pt=parseFloat(states[ENT.pitTarget]);
+  if(!isNaN(pt))pitTarget=pt;
+  _synced=true;savePit();renderPitSel();updatePit();render();
 }
 
 function setChip(ok,msg){
@@ -482,96 +557,136 @@ function svc(domain,service,target,data){
   haWs.send(JSON.stringify({id:msgId++,type:"call_service",domain,service,target:{entity_id:target},service_data:data||{}}));
 }
 
+// ── Food assignment ────────────────────────────────────
 function assign(item,probe){
-  if(probe===1){p1Item=item;p1Start=Date.now();p1Done=false;}
-  else{p2Item=item;p2Start=Date.now();p2Done=false;}
+  if(probe===pitProbe){showToast(`P${probe} is the pit probe`,"warn");return;}
+  const st=probeState[probe];
+  st.item=item;st.start=Date.now();st.done=false;
   if(haOk){
-    svc("input_select","select_option",probe===1?ENT.p1M:ENT.p2M,{option:item.haType||"None"});
-    if(item.target)svc("input_number","set_value",probe===1?ENT.p1N:ENT.p2N,{value:item.target});
-    svc("input_boolean","turn_off",probe===1?ENT.p1A:ENT.p2A,{});
+    svc("input_select","select_option",ENT["p"+probe+"M"],{option:item.haType||"None"});
+    if(item.target)svc("input_number","set_value",ENT["p"+probe+"N"],{value:item.target});
+    svc("input_boolean","turn_off",ENT["p"+probe+"A"],{});
     showToast(`P${probe} → ${item.name}${item.target?" ("+item.target+"°F)":""}`);
   }else showToast(`P${probe} → ${item.name} (HA offline)`,"warn");
+  autoPitTarget(item);
   refresh();render();
 }
 
+// When a pit probe is active, nudge its target to match the recipe's smoker temp.
+function autoPitTarget(item){
+  if(!pitProbe)return;
+  const m=(item.smoke||"").match(/\d+/);
+  if(!m)return;
+  pitTarget=parseInt(m[0]);savePit();
+  if(haOk)svc("input_number","set_value",ENT.pitTarget,{value:pitTarget});
+  updatePit();
+}
+
 function clearProbe(probe){
-  if(probe===1){p1Item=null;p1Start=null;p1Done=false;svc("input_select","select_option",ENT.p1M,{option:"None"});}
-  else{p2Item=null;p2Start=null;p2Done=false;svc("input_select","select_option",ENT.p2M,{option:"None"});}
+  const st=probeState[probe];st.item=null;st.start=null;st.done=false;
+  if(haOk)svc("input_select","select_option",ENT["p"+probe+"M"],{option:"None"});
   refresh();render();
 }
 
 window.assignFromIdx=function(idx,probe){const item=_reg[idx];if(item)assign(item,probe);};
 
-function refresh(){updateProbes();updateDevice();}
+// ── Pit probe control ──────────────────────────────────
+function setPit(n){
+  if(n>0&&probeState[n].item)clearProbe(n); // free the slot if it held food
+  pitProbe=n;savePit();
+  if(haOk)svc("input_select","select_option",ENT.pitProbe,{option:n===0?"Off":"P"+n});
+  showToast(n===0?"Pit probe off":`Pit probe → P${n}`);
+  renderPitSel();refresh();render();
+}
 
-function updateDevice(){
-  const conn=states[ENT.conn];
-  const chrg=states[ENT.chrg];
-  const base=parseFloat(states[ENT.base]);
-  const p1b=parseFloat(states[ENT.p1B]);
-  const p2b=parseFloat(states[ENT.p2B]);
-  const p1t=parseFloat(states[ENT.p1T]);
-  const p2t=parseFloat(states[ENT.p2T]);
+function setPitTarget(){
+  const v=prompt("Target pit / grill temp (°F)",pitTarget);
+  if(v===null)return;
+  const t=parseInt(v);
+  if(!t||t<100||t>700){showToast("Enter 100–700°F","err");return;}
+  pitTarget=t;savePit();
+  if(haOk)svc("input_number","set_value",ENT.pitTarget,{value:t});
+  updatePit();showToast(`Pit target ${t}°F`);
+}
 
-  function bc(p){return p>=60?"ok":p>=30?"warn":"bad";}
+function refresh(){updateProbes();updatePit();updateConn();}
 
-  // Connection — grid dpill
-  const ce=document.getElementById("ds-conn");
-  const cev=document.getElementById("ds-conn-v");
-  if(conn!==undefined){cev.textContent=conn==="on"?"Connected":"Disconnected";ce.className="dpill "+(conn==="on"?"ok":"bad");}
-
-  // Probe charging — header pill
-  const che=document.getElementById("ds-chrg");
-  const chev=document.getElementById("ds-chrg-v");
-  if(chrg!==undefined){chev.textContent=chrg==="on"?"Charging":"Not charging";che.className="hdr-pill "+(chrg==="on"?"charging":"");}
-
-  // Batteries
-  function setBat(pillId,valId,label,pct){
-    const pill=document.getElementById(pillId);
-    const val=document.getElementById(valId);
-    if(!isNaN(pct)){val.textContent=Math.round(pct)+"%";pill.className="dpill "+bc(pct);}
+// Derived thermometer-connection strip.
+function updateConn(){
+  const el=document.getElementById("therm-strip");
+  const live=PROBES.filter(n=>liveTemp(n)!==null).length;
+  if(anyLive()){
+    el.className="therm ok";
+    el.innerHTML=`<span class="therm-dot"></span> Thermometer connected <span class="therm-n">${live} probe${live!==1?"s":""} live</span>`;
+  }else{
+    el.className="therm bad";
+    el.innerHTML=`<span class="therm-dot"></span> Thermometer disconnected <span class="therm-n">check Govee</span>`;
   }
-  setBat("ds-base","ds-base-v","Base",base);
-  setBat("ds-p1b","ds-p1b-v","P1",p1b);
-  setBat("ds-p2b","ds-p2b-v","P2",p2b);
-
-  // Probe temps in device bar
-  const connOk=conn==="on";
-  const p1tp=document.getElementById("ds-p1t");
-  const p1tv=document.getElementById("ds-p1t-v");
-  if(connOk&&!isNaN(p1t)){p1tv.textContent=Math.round(p1t)+"°F";p1tp.className="dpill";}
-  else{p1tv.textContent="—";p1tp.className="dpill";}
-
-  const p2tp=document.getElementById("ds-p2t");
-  const p2tv=document.getElementById("ds-p2t-v");
-  if(connOk&&!isNaN(p2t)){p2tv.textContent=Math.round(p2t)+"°F";p2tp.className="dpill";}
-  else{p2tv.textContent="—";p2tp.className="dpill";}
 }
 
-function updateProbes(){
-  const connOk=states[ENT.conn]==="on";
-  updateOneProbe(1,p1Item,ENT.p1T,ENT.p1N,connOk,p1Start,d=>p1Done=d,()=>p1Done);
-  updateOneProbe(2,p2Item,ENT.p2T,ENT.p2N,connOk,p2Start,d=>p2Done=d,()=>p2Done);
+function updatePit(){
+  const lbl=document.getElementById("pit-lbl");
+  const temp=document.getElementById("pit-temp");
+  const stat=document.getElementById("pit-stat");
+  document.getElementById("pit-target-btn").textContent=`Target ${pitTarget}°F`;
+  if(!pitProbe){
+    lbl.textContent="GRILL · NO PIT PROBE";
+    temp.textContent="—";
+    stat.textContent="Pick a probe below to watch the grill";
+    stat.className="pit-stat";
+    return;
+  }
+  lbl.textContent=`GRILL · PIT PROBE ${pitProbe}`;
+  const t=liveTemp(pitProbe);
+  if(t===null){temp.textContent="—";stat.textContent="Pit probe disconnected";stat.className="pit-stat warn";return;}
+  temp.textContent=Math.round(t)+"°F";
+  if(t>pitTarget+PIT_BAND){stat.textContent="🔥 Running hot";stat.className="pit-stat hot";}
+  else if(t<pitTarget-PIT_BAND){stat.textContent="❄ Fire dropping";stat.className="pit-stat cold";}
+  else{stat.textContent=`✓ Holding · target ${pitTarget}°F`;stat.className="pit-stat hold";}
 }
 
-function updateOneProbe(n,item,tEnt,nEnt,connOk,startTime,setDone,getDone){
+function updateProbes(){PROBES.forEach(n=>updateOneProbe(n));}
+
+function updateOneProbe(n){
   const fEl=document.getElementById(`p${n}-food`);
   const tEl=document.getElementById(`p${n}-temp`);
   const sEl=document.getElementById(`p${n}-stat`);
   const bw=document.getElementById(`p${n}-bw`);
   const bar=document.getElementById(`p${n}-bar`);
   const clr=document.getElementById(`p${n}-clr`);
-  const cur=connOk?(parseFloat(states[tEnt])||null):null;
+  const badge=document.getElementById(`p${n}-pit`);
+  const cur=liveTemp(n);
+
+  // ── Pit mode: this probe is watching the grill, not a food ──
+  if(n===pitProbe){
+    badge.style.display="inline-block";
+    clr.style.display="none";bw.style.display="none";
+    fEl.className="pc-mon";fEl.textContent="Monitoring grill";
+    if(cur!==null){tEl.style.display="block";tEl.className="pc-temp";tEl.textContent=Math.round(cur)+"°F";}
+    else{tEl.style.display="none";}
+    sEl.textContent="";sEl.className="pc-stat";
+    return;
+  }
+  badge.style.display="none";
+
+  const st=probeState[n];
+  const item=st.item;
   const tgt=item?item.target:null;
+
+  // ── Empty slot: still show a live spot-check temp if the probe is plugged in ──
   if(!item){
     fEl.className="pc-empty";fEl.textContent="No food assigned";
-    tEl.style.display="none";sEl.textContent="";bw.style.display="none";clr.style.display="none";return;
+    if(cur!==null){tEl.style.display="block";tEl.className="pc-temp dim";tEl.textContent=Math.round(cur)+"°F";sEl.textContent="Live (spot check)";sEl.className="pc-stat dim";}
+    else{tEl.style.display="none";sEl.textContent="";sEl.className="pc-stat";}
+    bw.style.display="none";clr.style.display="none";return;
   }
+
+  // ── Assigned food ──
   fEl.className="pc-food";
-  const elapsed=startTime?fmtElapsed(Date.now()-startTime):null;
+  const elapsed=st.start?fmtElapsed(Date.now()-st.start):null;
   fEl.innerHTML=`${item.name}<div class="pc-detail">${item.smoke} · ${item.time}${elapsed?` · ⏱ ${elapsed}`:""}</div>`;
   clr.style.display="block";
-  if(cur!==null){tEl.style.display="block";tEl.textContent=Math.round(cur)+"°F";}else tEl.style.display="none";
+  if(cur!==null){tEl.style.display="block";tEl.className="pc-temp";tEl.textContent=Math.round(cur)+"°F";}else tEl.style.display="none";
   if(tgt&&cur!==null){
     bw.style.display="block";
     const pct=Math.min(100,Math.round(((cur-32)/(tgt-32))*100));
@@ -580,12 +695,12 @@ function updateOneProbe(n,item,tEnt,nEnt,connOk,startTime,setDone,getDone){
     const rem=tgt-cur;
     if(rem<=0){
       sEl.innerHTML=`<span class="st-done">✓ Ready to pull!${elapsed?` (${elapsed})`:""}</span>`;
-      if(!getDone()){setDone(true);probeDone(n,item);}
+      if(!st.done){st.done=true;probeDone(n,item);}
     }
     else if(rem<=10)sEl.innerHTML=`<span class="st-warn">⚠ ${Math.round(rem)}°F to go!</span>`;
     else{sEl.textContent=`${Math.round(rem)}°F from target (${tgt}°F)`;sEl.className="pc-stat";}
-  }else if(tgt){bw.style.display="none";sEl.textContent=connOk?`Target: ${tgt}°F`:"Probe disconnected";sEl.className=connOk?"pc-stat":"pc-stat st-warn";}
-  else{bw.style.display="none";sEl.textContent=connOk?"No temp target":"Probe disconnected";sEl.className=connOk?"pc-stat":"pc-stat st-warn";}
+  }else if(tgt){bw.style.display="none";sEl.textContent=cur!==null?`Target: ${tgt}°F`:"Probe disconnected";sEl.className=cur!==null?"pc-stat":"pc-stat st-warn";}
+  else{bw.style.display="none";sEl.textContent=cur!==null?"No temp target":"Probe disconnected";sEl.className=cur!==null?"pc-stat":"pc-stat st-warn";}
 }
 
 function fmtElapsed(ms){
@@ -631,6 +746,15 @@ function buildMerged(){
   return m;
 }
 
+// Which probe (if any, and not the pit) currently holds this food?
+function assignedProbe(item){
+  for(const n of PROBES){
+    if(n===pitProbe)continue;
+    if(probeState[n].item&&probeState[n].item.name===item.name)return n;
+  }
+  return 0;
+}
+
 function render(){
   _reg=[];
   const all=buildMerged();
@@ -642,11 +766,17 @@ function render(){
     total+=items.length;
     html+=`<div class="sec-label">${sec.cat}</div><div class="food-list">`;
     items.forEach(item=>{
-      const isP1=p1Item&&p1Item.name===item.name;
-      const isP2=p2Item&&p2Item.name===item.name;
       const idx=_reg.length;_reg.push(item);
+      const sel=assignedProbe(item);
       const isOpen=openIdx===idx;
-      const rc="food-row"+(item.custom?" custom-row":"")+(isP1?" sel-p1":isP2?" sel-p2":"")+(isOpen?" is-open":"");
+      const rc="food-row"+(item.custom?" custom-row":"")+(sel?` sel-p${sel}`:"")+(isOpen?" is-open":"");
+      // Build P1–P4 buttons; the pit probe becomes a locked flame.
+      let btns="";
+      for(const n of PROBES){
+        if(n===pitProbe){btns+=`<button class="abtn pit" title="Pit probe" onclick="event.stopPropagation()">🔥</button>`;continue;}
+        const on=probeState[n].item&&probeState[n].item.name===item.name;
+        btns+=`<button class="abtn${on?" p"+n+"a":""}" onclick="assignFromIdx(${idx},${n})">P${n}${on?" ✓":""}</button>`;
+      }
       html+=`
       <div class="${rc}" id="fr-${idx}" onclick="toggleRow(${idx})">
         <div class="fn">
@@ -654,8 +784,7 @@ function render(){
           ${item.tip?`<div class="fn-tip">${item.tip}</div>`:''}
         </div>
         <div class="abtns" onclick="event.stopPropagation()">
-          <button class="abtn${isP1?" p1a":""}" onclick="assignFromIdx(${idx},1)">P1${isP1?" ✓":""}</button>
-          <button class="abtn${isP2?" p2a":""}" onclick="assignFromIdx(${idx},2)">P2${isP2?" ✓":""}</button>
+          ${btns}
           ${item.custom?`<button class="del-btn" onclick="event.stopPropagation();deleteCustom(${item.id})">✕</button>`:''}
         </div>
       </div>
@@ -691,6 +820,12 @@ function buildChips(){
     ch.textContent=c;
     ch.onclick=()=>{activeCat=c;document.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));ch.classList.add("active");openIdx=null;render();};
     el.appendChild(ch);
+  });
+}
+
+function renderPitSel(){
+  document.querySelectorAll(".pit-sel [data-pit]").forEach(b=>{
+    b.classList.toggle("active",parseInt(b.dataset.pit)===pitProbe);
   });
 }
 
@@ -833,7 +968,7 @@ function showToast(msg,type){
 }
 
 if(window.Notification&&Notification.permission==="default")Notification.requestPermission();
-loadCustom();buildChips();renderCustomList();render();connectHA();
+loadCustom();loadPit();buildChips();renderCustomList();renderPitSel();updatePit();updateConn();render();connectHA();
 document.getElementById("search").oninput=e=>{query=e.target.value.toLowerCase();openIdx=null;render();};
 setInterval(()=>{if(haOk)refresh();},5000);
 </script>
