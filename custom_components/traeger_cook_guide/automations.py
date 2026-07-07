@@ -1,9 +1,18 @@
 """
-Create and remove all 9 Traeger Cook Guide automations.
+Create and remove all 18 Traeger Cook Guide automations.
 
-Writes directly to HA's automation storage collection — the same backend
-the UI uses — so automations appear in Settings → Automations, are fully
-editable, and survive restarts.  Stable IDs prevent duplicates on re-install.
+Writes directly to HA's automation storage collection — the same backend the UI
+uses — so automations appear in Settings → Automations, are fully editable, and
+survive restarts. Stable IDs prevent duplicates on re-install.
+
+Per probe (×4):
+  • Set Target      — meat type selected → set that probe's target temp
+  • Almost Done     — within 10°F of target → push notification
+  • Target Reached  — hits target → push notification (once)
+  • Reset Alert     — meat type set back to None → clear the alert flag
+Pit (×2):
+  • Pit Running Hot — active pit probe drifts above target + PIT_BAND
+  • Pit Fire Drop   — active pit probe drifts below target − PIT_BAND
 """
 from __future__ import annotations
 
@@ -14,21 +23,20 @@ from homeassistant.core import HomeAssistant
 
 from .const import (
     AUTOMATION_IDS,
-    ENTITY_PROBE_1_TEMP,
-    ENTITY_PROBE_2_TEMP,
-    ENTITY_PROBE_1_BATTERY,
-    ENTITY_PROBE_2_BATTERY,
-    ENTITY_BASE_BATTERY,
-    HELPER_P1_MEAT_TYPE,
-    HELPER_P2_MEAT_TYPE,
-    HELPER_P1_TARGET_TEMP,
-    HELPER_P2_TARGET_TEMP,
-    HELPER_P1_ALERT_SENT,
-    HELPER_P2_ALERT_SENT,
+    PROBES,
+    PIT_BAND,
+    PIT_TARGET_DEFAULT,
+    ENTITY_PROBE_TEMP,
+    HELPER_PIT_PROBE,
+    HELPER_PIT_TARGET,
+    meat_type_id,
+    target_temp_id,
+    alert_sent_id,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
+# Maps the selected meat type to a target internal temp. Mirrors MEAT_OPTIONS.
 _MEAT_TARGET_TEMPLATE = """\
 {% set m = trigger.to_state.state %}
 {% if m == 'Brisket' %}203
@@ -48,19 +56,28 @@ _MEAT_TARGET_TEMPLATE = """\
 {% else %}165{% endif %}\
 """
 
+# Entities for the pit block.
+_PIT_SEL = f"input_select.{HELPER_PIT_PROBE}"
+_PIT_NUM = f"input_number.{HELPER_PIT_TARGET}"
+# Jinja expression that resolves the active pit probe's live temperature.
+# "P3" -> sensor.govee_meat_thermometer_temperature_probe_3 ; -999 if none/unavailable.
+_PIT_TEMP = (
+    "states('sensor.govee_meat_thermometer_temperature_probe_' ~ "
+    f"states('{_PIT_SEL}')[1:]) | float(-999)"
+)
+
 
 def _build_automations() -> list[dict[str, Any]]:
-    """Return the list of all 9 automation config dicts."""
+    """Return the list of all 18 automation config dicts."""
 
-    def set_target(probe: int) -> dict:
-        sel = f"input_select.{HELPER_P1_MEAT_TYPE if probe == 1 else HELPER_P2_MEAT_TYPE}"
-        num = f"input_number.{HELPER_P1_TARGET_TEMP if probe == 1 else HELPER_P2_TARGET_TEMP}"
-        flag = f"input_boolean.{HELPER_P1_ALERT_SENT if probe == 1 else HELPER_P2_ALERT_SENT}"
-        key = f"p{probe}_set_target"
+    def set_target(n: int) -> dict:
+        sel = f"input_select.{meat_type_id(n)}"
+        num = f"input_number.{target_temp_id(n)}"
+        flag = f"input_boolean.{alert_sent_id(n)}"
         return {
-            "id": AUTOMATION_IDS[key],
-            "alias": f"Traeger Probe {probe} Set Target",
-            "description": f"Auto-sets target temp when Probe {probe} meat type is selected",
+            "id": AUTOMATION_IDS[f"p{n}_set_target"],
+            "alias": f"Traeger Probe {n} Set Target",
+            "description": f"Auto-sets target temp when Probe {n} meat type is selected",
             "mode": "single",
             "trigger": [{"platform": "state", "entity_id": sel}],
             "condition": [],
@@ -74,32 +91,31 @@ def _build_automations() -> list[dict[str, Any]]:
             ],
         }
 
-    def almost_done(probe: int) -> dict:
-        temp_e = ENTITY_PROBE_1_TEMP if probe == 1 else ENTITY_PROBE_2_TEMP
-        tgt_e = f"input_number.{HELPER_P1_TARGET_TEMP if probe == 1 else HELPER_P2_TARGET_TEMP}"
-        flag_e = f"input_boolean.{HELPER_P1_ALERT_SENT if probe == 1 else HELPER_P2_ALERT_SENT}"
-        sel_e = f"input_select.{HELPER_P1_MEAT_TYPE if probe == 1 else HELPER_P2_MEAT_TYPE}"
-        key = f"p{probe}_almost_done"
+    def almost_done(n: int) -> dict:
+        temp_e = ENTITY_PROBE_TEMP[n]
+        num = f"input_number.{target_temp_id(n)}"
+        flag = f"input_boolean.{alert_sent_id(n)}"
+        sel = f"input_select.{meat_type_id(n)}"
         return {
-            "id": AUTOMATION_IDS[key],
-            "alias": f"Traeger Probe {probe} Almost Done",
-            "description": f"Sends push alert when Probe {probe} is within 10°F of target",
+            "id": AUTOMATION_IDS[f"p{n}_almost_done"],
+            "alias": f"Traeger Probe {n} Almost Done",
+            "description": f"Sends push alert when Probe {n} is within 10°F of target",
             "mode": "single",
             "trigger": [
                 {
                     "platform": "template",
                     "value_template": (
                         f"{{{{ states('{temp_e}') | float(0) >= "
-                        f"(states('{tgt_e}') | float(999) - 10) }}}}"
+                        f"(states('{num}') | float(999) - 10) }}}}"
                     ),
                 }
             ],
             "condition": [
-                {"condition": "state", "entity_id": flag_e, "state": "off"},
+                {"condition": "state", "entity_id": flag, "state": "off"},
                 {
                     "condition": "not",
                     "conditions": [
-                        {"condition": "state", "entity_id": sel_e, "state": "None"}
+                        {"condition": "state", "entity_id": sel, "state": "None"}
                     ],
                 },
             ],
@@ -107,11 +123,11 @@ def _build_automations() -> list[dict[str, Any]]:
                 {
                     "action": "notify.notify",
                     "data": {
-                        "title": f"⚠️ Probe {probe} Almost Done",
+                        "title": f"⚠️ Probe {n} Almost Done",
                         "message": (
-                            f"{{{{ states('{sel_e}') }}}} is at "
+                            f"{{{{ states('{sel}') }}}} is at "
                             f"{{{{ states('{temp_e}') }}}}°F — "
-                            f"{{{{ (states('{tgt_e}') | float - "
+                            f"{{{{ (states('{num}') | float - "
                             f"states('{temp_e}') | float) | int }}}}°F to go!"
                         ),
                     },
@@ -119,43 +135,42 @@ def _build_automations() -> list[dict[str, Any]]:
             ],
         }
 
-    def target_reached(probe: int) -> dict:
-        temp_e = ENTITY_PROBE_1_TEMP if probe == 1 else ENTITY_PROBE_2_TEMP
-        tgt_e = f"input_number.{HELPER_P1_TARGET_TEMP if probe == 1 else HELPER_P2_TARGET_TEMP}"
-        flag_e = f"input_boolean.{HELPER_P1_ALERT_SENT if probe == 1 else HELPER_P2_ALERT_SENT}"
-        sel_e = f"input_select.{HELPER_P1_MEAT_TYPE if probe == 1 else HELPER_P2_MEAT_TYPE}"
-        key = f"p{probe}_target_reached"
+    def target_reached(n: int) -> dict:
+        temp_e = ENTITY_PROBE_TEMP[n]
+        num = f"input_number.{target_temp_id(n)}"
+        flag = f"input_boolean.{alert_sent_id(n)}"
+        sel = f"input_select.{meat_type_id(n)}"
         return {
-            "id": AUTOMATION_IDS[key],
-            "alias": f"Traeger Probe {probe} Target Reached",
-            "description": f"Fires once when Probe {probe} hits target temp",
+            "id": AUTOMATION_IDS[f"p{n}_target_reached"],
+            "alias": f"Traeger Probe {n} Target Reached",
+            "description": f"Fires once when Probe {n} hits target temp",
             "mode": "single",
             "trigger": [
                 {
                     "platform": "template",
                     "value_template": (
                         f"{{{{ states('{temp_e}') | float(0) >= "
-                        f"states('{tgt_e}') | float(999) }}}}"
+                        f"states('{num}') | float(999) }}}}"
                     ),
                 }
             ],
             "condition": [
-                {"condition": "state", "entity_id": flag_e, "state": "off"},
+                {"condition": "state", "entity_id": flag, "state": "off"},
                 {
                     "condition": "not",
                     "conditions": [
-                        {"condition": "state", "entity_id": sel_e, "state": "None"}
+                        {"condition": "state", "entity_id": sel, "state": "None"}
                     ],
                 },
             ],
             "action": [
-                {"action": "input_boolean.turn_on", "target": {"entity_id": flag_e}},
+                {"action": "input_boolean.turn_on", "target": {"entity_id": flag}},
                 {
                     "action": "notify.notify",
                     "data": {
-                        "title": f"🍖 Probe {probe} Ready!",
+                        "title": f"🍖 Probe {n} Ready!",
                         "message": (
-                            f"{{{{ states('{sel_e}') }}}} hit "
+                            f"{{{{ states('{sel}') }}}} hit "
                             f"{{{{ states('{temp_e}') }}}}°F — pull it now!"
                         ),
                         "data": {"push": {"sound": "default"}},
@@ -164,66 +179,98 @@ def _build_automations() -> list[dict[str, Any]]:
             ],
         }
 
-    def reset_alert(probe: int) -> dict:
-        sel_e = f"input_select.{HELPER_P1_MEAT_TYPE if probe == 1 else HELPER_P2_MEAT_TYPE}"
-        flag_e = f"input_boolean.{HELPER_P1_ALERT_SENT if probe == 1 else HELPER_P2_ALERT_SENT}"
-        key = f"p{probe}_reset_alert"
+    def reset_alert(n: int) -> dict:
+        sel = f"input_select.{meat_type_id(n)}"
+        flag = f"input_boolean.{alert_sent_id(n)}"
         return {
-            "id": AUTOMATION_IDS[key],
-            "alias": f"Traeger Reset Probe {probe} Alert",
-            "description": f"Resets alert flag when Probe {probe} set back to None",
+            "id": AUTOMATION_IDS[f"p{n}_reset_alert"],
+            "alias": f"Traeger Reset Probe {n} Alert",
+            "description": f"Resets alert flag when Probe {n} set back to None",
             "mode": "single",
-            "trigger": [{"platform": "state", "entity_id": sel_e, "to": "None"}],
+            "trigger": [{"platform": "state", "entity_id": sel, "to": "None"}],
             "condition": [],
             "action": [
-                {"action": "input_boolean.turn_off", "target": {"entity_id": flag_e}}
+                {"action": "input_boolean.turn_off", "target": {"entity_id": flag}}
             ],
         }
 
-    battery_low = {
-        "id": AUTOMATION_IDS["battery_low"],
-        "alias": "Traeger Battery Low",
-        "description": "Alerts when any probe or base drops below threshold",
-        "mode": "single",
-        "trigger": [
-            {"platform": "numeric_state", "entity_id": ENTITY_PROBE_1_BATTERY, "below": 25},
-            {"platform": "numeric_state", "entity_id": ENTITY_PROBE_2_BATTERY, "below": 25},
-            {"platform": "numeric_state", "entity_id": ENTITY_BASE_BATTERY, "below": 20},
-        ],
-        "condition": [],
-        "action": [
-            {
-                "action": "notify.notify",
-                "data": {
-                    "title": "🔋 HOPEPOP Battery Low",
-                    "message": (
-                        f"{{% if trigger.entity_id == '{ENTITY_PROBE_1_BATTERY}' %}}"
-                        f"Probe 1 at {{{{ states('{ENTITY_PROBE_1_BATTERY}') }}}}%"
-                        f"{{% elif trigger.entity_id == '{ENTITY_PROBE_2_BATTERY}' %}}"
-                        f"Probe 2 at {{{{ states('{ENTITY_PROBE_2_BATTERY}') }}}}%"
-                        f"{{% else %}}Base at {{{{ states('{ENTITY_BASE_BATTERY}') }}}}%{{% endif %}}"
-                        " — charge before your next cook"
-                    ),
-                },
-            }
-        ],
-    }
+    # ── Pit drift automations ────────────────────────────────────────────────
+    # The active pit probe is dynamic (chosen via input_select.pit_probe), so the
+    # trigger resolves the right temp sensor at evaluation time. `for` debounces
+    # brief spikes (lid open, spritz) so we only alert on a real drift.
+    def pit_high() -> dict:
+        value_template = (
+            "{% set p = states('" + _PIT_SEL + "') %}"
+            "{% if p in ['P1','P2','P3','P4'] %}"
+            "{% set t = " + _PIT_TEMP + " %}"
+            "{{ t > -900 and t > (states('" + _PIT_NUM + "') | float("
+            + str(PIT_TARGET_DEFAULT) + ") + " + str(PIT_BAND) + ") }}"
+            "{% else %}false{% endif %}"
+        )
+        message = (
+            "Pit is at {{ " + _PIT_TEMP + " | round(0) }}°F — target "
+            "{{ states('" + _PIT_NUM + "') }}°F. Check for a flare-up."
+        )
+        return {
+            "id": AUTOMATION_IDS["pit_high"],
+            "alias": "Traeger Pit Running Hot",
+            "description": "Alerts when the active pit probe drifts above target",
+            "mode": "single",
+            "trigger": [
+                {"platform": "template", "value_template": value_template, "for": {"seconds": 30}}
+            ],
+            "condition": [],
+            "action": [
+                {
+                    "action": "notify.notify",
+                    "data": {"title": "🔥 Pit Running Hot", "message": message},
+                }
+            ],
+        }
 
-    return [
-        set_target(1),
-        set_target(2),
-        almost_done(1),
-        almost_done(2),
-        target_reached(1),
-        target_reached(2),
-        reset_alert(1),
-        reset_alert(2),
-        battery_low,
-    ]
+    def pit_low() -> dict:
+        value_template = (
+            "{% set p = states('" + _PIT_SEL + "') %}"
+            "{% if p in ['P1','P2','P3','P4'] %}"
+            "{% set t = " + _PIT_TEMP + " %}"
+            "{{ t > -900 and t < (states('" + _PIT_NUM + "') | float("
+            + str(PIT_TARGET_DEFAULT) + ") - " + str(PIT_BAND) + ") }}"
+            "{% else %}false{% endif %}"
+        )
+        message = (
+            "Pit dropped to {{ " + _PIT_TEMP + " | round(0) }}°F — target "
+            "{{ states('" + _PIT_NUM + "') }}°F. Fire may be dying."
+        )
+        return {
+            "id": AUTOMATION_IDS["pit_low"],
+            "alias": "Traeger Pit Fire Dropping",
+            "description": "Alerts when the active pit probe drifts below target",
+            "mode": "single",
+            "trigger": [
+                {"platform": "template", "value_template": value_template, "for": {"seconds": 60}}
+            ],
+            "condition": [],
+            "action": [
+                {
+                    "action": "notify.notify",
+                    "data": {"title": "❄️ Pit Fire Dropping", "message": message},
+                }
+            ],
+        }
+
+    autos: list[dict[str, Any]] = []
+    for n in PROBES:
+        autos.append(set_target(n))
+        autos.append(almost_done(n))
+        autos.append(target_reached(n))
+        autos.append(reset_alert(n))
+    autos.append(pit_high())
+    autos.append(pit_low())
+    return autos
 
 
 async def async_create_automations(hass: HomeAssistant) -> None:
-    """Write all 9 automations into HA's storage collection."""
+    """Write all 18 automations into HA's storage collection."""
     component = hass.data.get("automation")
     if component is None:
         _LOGGER.error("automation component not loaded — cannot register automations")
