@@ -97,6 +97,20 @@ h1{font-size:15px;font-weight:600;display:flex;align-items:center;gap:5px;flex-s
 .pc-empty{font-size:12px;color:var(--text3);font-style:italic;}
 .pc-clear{position:absolute;top:8px;right:10px;font-size:13px;color:var(--danger);background:none;border:none;cursor:pointer;padding:2px;line-height:1;}
 
+
+/* ── Organize mode ── */
+.org-btn{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);cursor:pointer;white-space:nowrap;font-family:inherit;}
+.org-btn.active{border-color:var(--amber-border);background:var(--amber-bg);color:var(--amber-text);font-weight:600;}
+.food-row.org-selected{background:var(--amber-bg)!important;border-left:3px solid var(--amber-border);padding-left:7px;}
+.org-check{width:18px;height:18px;flex-shrink:0;accent-color:var(--amber-text);cursor:pointer;margin-right:2px;}
+.org-bar{position:fixed;bottom:0;left:0;right:0;z-index:999;background:var(--bg);border-top:2px solid var(--amber-border);padding:10px 14px;display:none;align-items:center;gap:8px;flex-wrap:wrap;box-shadow:0 -4px 16px rgba(0,0,0,.2);}
+.org-bar.visible{display:flex;}
+.org-bar-count{font-size:13px;font-weight:600;color:var(--amber-text);flex-shrink:0;min-width:80px;}
+.org-bar select{flex:1;min-width:110px;max-width:180px;}
+.org-bar-move{padding:7px 18px;border-radius:var(--rad);background:var(--amber-text);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;flex-shrink:0;}
+.org-bar-move:disabled{opacity:.35;cursor:default;}
+.org-bar-selall{padding:7px 10px;border-radius:var(--rad);background:var(--bg2);color:var(--text2);border:1px solid var(--border2);font-size:12px;cursor:pointer;font-family:inherit;flex-shrink:0;}
+.org-bar-cancel{padding:7px 10px;border-radius:var(--rad);background:var(--bg2);color:var(--text2);border:1px solid var(--border2);font-size:12px;cursor:pointer;font-family:inherit;flex-shrink:0;}
 /* ── Search ── */
 .search-wrap{position:relative;margin-bottom:8px;}
 .search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;stroke:var(--text3);fill:none;pointer-events:none;}
@@ -193,6 +207,12 @@ input[type=number],select{font-family:inherit;font-size:13px;border:1px solid va
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 #toast.warn{background:#BA7517;}
 #toast.err{background:var(--danger);}
+
+/* -- Probe reminder -- */
+.probe-reminder{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rad);padding:8px 11px;margin-bottom:10px;}
+.probe-reminder .pr-icon{font-size:16px;flex-shrink:0;}
+.probe-reminder strong{color:var(--text);font-weight:600;}
+.det-probe{font-size:12px;color:var(--blue-text);background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:6px;padding:7px 10px;margin-top:8px;}
 </style>
 </head>
 <body>
@@ -202,6 +222,7 @@ input[type=number],select{font-family:inherit;font-size:13px;border:1px solid va
   <h1>🔥 Traeger <span id="live-badge" class="live" style="display:none;">LIVE</span></h1>
   <div class="hdr-right">
     <span id="ha-chip" class="ha-chip err" onclick="promptToken()">HA: connecting…</span>
+    <button id="org-btn" class="org-btn" onclick="toggleOrganize()">Organize</button>
   </div>
 </div>
 
@@ -276,6 +297,11 @@ input[type=number],select{font-family:inherit;font-size:13px;border:1px solid va
 <!-- Chips -->
 <div class="chips" id="chips"></div>
 
+<!-- Probe reminder banner -->
+<div class="probe-reminder">
+  <span class="pr-icon">&#127777;</span>
+  <div><strong>Probe tip:</strong> Always insert your meat thermometer into the thickest part of the meat, away from bones and fat seams, for an accurate reading.</div>
+</div>
 <!-- Food list -->
 <div id="output"></div>
 
@@ -342,10 +368,6 @@ const COOK_DATA=[
     {name:"Brisket flat",smoke:"225–250°F",time:"6–10 hrs",internal:"203°F",tip:"Wrap at 165°F",target:203,haType:"Brisket",steps:["Trim fat cap to about 1/4\"","Season with salt & pepper","Smoke fat-side up, spritz every hour once bark sets","Wrap at 165°F internal, continue to 203°F","Rest 30-45 min, slice against the grain"]},
     {name:"Traeger Brisket (Official Recipe)",smoke:"225°F",time:"9–10 hrs",internal:"204°F",tip:"Beef Rub only, fat-side down; smoke unwrapped to 160°F (~6 hrs), then double-wrap in foil to 204°F (~3–4 hrs); rest 30+ min before slicing",target:204,haType:"Brisket",steps:["Trim brisket, leaving a 1/4\" fat cap","Season all sides with Traeger Beef Rub","Smoke fat-side down at 225°F, unwrapped, to 160°F internal","Double-wrap in foil, return to smoker until 204°F","Rest wrapped 30-60 min, slice against the grain"]},
     {name:"Beef back ribs",smoke:"225–250°F",time:"5–7 hrs",internal:"195–200°F",tip:"3-2-1 method",target:198,haType:"Beef Ribs",steps:["Remove the membrane from the bone side","Season with beef rub","Smoke unwrapped at 225-250°F for about 3 hrs","Wrap in foil 1-2 hrs to tenderize","Unwrap, sauce, and set the bark for 30 min"]},
-    {name:"Oxtail (Smoked & Braised)",smoke:"225°F → 275°F",time:"6–7 hrs",internal:"205–210°F",tip:"Smoke 3 hrs at 225°F, then braise in foil pan with beef broth at 275°F for 3–4 hrs until pull-from-bone tender",target:207,haType:"Beef Ribs",steps:["Pat oxtails dry; coat with mustard or olive oil as binder","Season generously with SPG rub (salt, pepper, garlic) or favorite beef rub; rest 20 min at room temp","Preheat Traeger to 225°F; smoke oxtails on grates 3 hrs until dark mahogany bark forms","Mix braise liquid: 2 cups beef broth, 1 chopped onion, 4 minced garlic cloves, 2 tbsp Worcestershire sauce (1 cup red wine optional)","Transfer oxtails to heavy-duty foil pan, submerge in braise liquid; double-wrap pan tightly with foil","Raise Traeger to 275°F; return sealed pan to grates and braise 3–4 hrs until meat pulls from bone at 205–210°F","Rest covered pan 15–20 min; spoon pan juices over oxtails; serve over rice, mashed potatoes, or polenta"]},
-    {name:"Beef Dino Ribs (Plate Ribs)",smoke:"250°F",time:"8–10 hrs",internal:"203°F",tip:"Unwrapped",target:203,haType:"Beef Ribs",steps:["Trim top fat layer to 1/4 inch and pull off the tough bottom bone membrane","Season generously with coarse salt and black pepper (SPG)","Preheat Traeger to 250°F; smoke bone-side down completely unwrapped to maximize bark","Spritz with apple cider vinegar or beef broth every hour after hour 3","Pull at 203°F when a probe slides in like butter; rest in a cooler for 1 hour"]},
-    {name:"Smoked Barbacoa (Beef Cheek)",smoke:"225°F / 275°F",time:"7–8 hrs",internal:"205°F",tip:"Wrap at 160°F",target:205,haType:"Beef Ribs",steps:["Trim hard exterior fat from beef cheeks; season with salt, pepper, cumin, and garlic","Preheat Traeger to 225°F; smoke unwrapped on grates for 3–4 hrs for a deep smoke ring","Move meat to a foil pan with beef broth, lime juice, garlic, and Mexican oregano","Double-wrap the pan with foil; raise to 275°F and braise for 4 hours","Pull at 205°F and shred beef cheeks directly inside the rich pan juices"]},
-    
     {name:"Beef short ribs",smoke:"250°F",time:"8–10 hrs",internal:"205°F",tip:"Unwrapped",target:205,haType:"Beef Ribs",steps:["Trim excess fat, season generously","Smoke fat-side up at 250°F, unwrapped the whole cook","Spritz with beef broth every hour after hour 3","Start probing for tenderness at 203°F","Rest 20-30 min before serving"]},
     {name:"Tri-tip",smoke:"225°F",time:"1.5–2 hrs",internal:"135°F",tip:"Sear after smoke",target:135,haType:"Beef Medium Rare",steps:["Trim silver skin, season with salt/pepper/garlic","Smoke at 225°F until 10-15°F below target","Pull and crank the grill to high heat","Sear 2-3 min per side for a crust","Rest 10 min, slice against the grain"]},
     {name:"Chuck roast",smoke:"250°F",time:"8–10 hrs",internal:"205°F",tip:"Wrap at 165°F",target:205,haType:"Beef Ribs",steps:["Season generously, let sit 30 min","Smoke unwrapped at 250°F to 165°F internal","Wrap in foil with a splash of broth","Continue to 205°F until probe-tender","Rest 20 min, shred or slice"]},
@@ -355,19 +377,14 @@ const COOK_DATA=[
     {name:"Meatloaf",smoke:"250°F",time:"3–4 hrs",internal:"160°F",tip:"",target:160,haType:"Beef Well Done",steps:["Mix ground beef with binder, egg, and seasonings","Shape into a loaf on a wire rack or pan","Smoke at 250°F until 160°F internal","Brush with glaze in the last 15 min","Rest 10 min before slicing"]},
     {name:"Beef jerky",smoke:"180°F",time:"4–6 hrs",internal:"—",tip:"Slice thin, marinate",target:null,haType:"None",steps:["Slice meat thin (1/4\") against the grain","Marinate 4-12 hrs in the fridge","Pat dry, lay flat on racks","Smoke at 180°F until dry and pliable","Cool fully before storing airtight"]},
     {name:"Tomahawk steak",smoke:"225°F → high sear",time:"1–1.5 hrs",internal:"130–135°F",tip:"Reverse sear, baste with garlic-herb butter",target:133,haType:"Beef Medium Rare",steps:["Season the bone-in ribeye generously, rest at room temp","Smoke at 225°F until 15°F below target internal","Pull and sear on high heat 2-3 min per side","Baste with garlic-herb butter while searing","Rest 10 min, slice off the bone"]},
-    {name:"Flanken-cut short ribs",smoke:"375–400°F",time:"8–12 min",internal:"145°F",tip:"Thin-cut, marinate 2–4 hrs, cooks fast and hot",target:145,haType:"Beef Medium",steps:["Marinate 2-4 hrs (soy, garlic, sesame works well)","Pat dry, season lightly","Grill hot at 375-400°F","Flip once, cook 4-6 min per side","Rest 3-5 min before serving"]},
+    {name:"Flanken-cut short ribs",smoke:"375–400°F",time:"8–12 min",internal:"145°F",tip:"Thin-cut, marinate 2–4 hrs, cooks fast and hot",target:145,haType:"Beef Medium",steps:["Marinate 2-4 hrs (soy, garlic, sesame works well)","Pat dry, season lightly","Grill hot at 375-400°F","Flip once, cook 4-6 min per side","Rest 3-5 min before serving"]},    {name:"Oxtail (Smoked & Braised)",smoke:"225°F → 275°F",time:"6–7 hrs",internal:"205–210°F",tip:"Smoke 3 hrs at 225°F, then braise in foil pan with beef broth at 275°F for 3–4 hrs until pull-from-bone tender",target:207,haType:"Beef Ribs",steps:["Pat oxtails dry; coat with mustard or olive oil as binder","Season generously with SPG rub (salt, pepper, garlic) or favorite beef rub; rest 20 min at room temp","Preheat Traeger to 225°F; smoke oxtails on grates 3 hrs until dark mahogany bark forms","Mix braise liquid: 2 cups beef broth, 1 chopped onion, 4 minced garlic cloves, 2 tbsp Worcestershire sauce (1 cup red wine optional)","Transfer oxtails to heavy-duty foil pan, submerge in braise liquid; double-wrap pan tightly with foil","Raise Traeger to 275°F; return sealed pan to grates and braise 3–4 hrs until meat pulls from bone at 205–210°F","Rest covered pan 15–20 min; spoon pan juices over oxtails; serve over rice, mashed potatoes, or polenta"]},
+    {name:"Beef Dino Ribs (Plate Ribs)",smoke:"250°F",time:"8–10 hrs",internal:"203°F",tip:"Unwrapped",target:203,haType:"Beef Ribs",steps:["Trim top fat layer to 1/4 inch and pull off the tough bottom bone membrane","Season generously with coarse salt and black pepper (SPG)","Preheat Traeger to 250°F; smoke bone-side down completely unwrapped to maximize bark","Spritz with apple cider vinegar or beef broth every hour after hour 3","Pull at 203°F when a probe slides in like butter; rest in a cooler for 1 hour"]},
+    {name:"Smoked Barbacoa (Beef Cheek)",smoke:"225°F / 275°F",time:"7–8 hrs",internal:"205°F",tip:"Wrap at 160°F",target:205,haType:"Beef Ribs",steps:["Trim hard exterior fat from beef cheeks; season with salt, pepper, cumin, and garlic","Preheat Traeger to 225°F; smoke unwrapped on grates for 3–4 hrs for a deep smoke ring","Move meat to a foil pan with beef broth, lime juice, garlic, and Mexican oregano","Double-wrap the pan with foil; raise to 275°F and braise for 4 hours","Pull at 205°F and shred beef cheeks directly inside the rich pan juices"]},
+    {name:"Smoked Kare-Kare Beef Shanks",smoke:"225°F",time:"5–6 hrs",internal:"Fall-apart tender",tip:"Braise after smoke",target:null,haType:"Beef Ribs",steps:["Season thick beef shanks with salt and pepper","Preheat Traeger to 225°F; smoke for 3 hrs to develop a deep red crust","Move smoked shanks to a heavy pot with water, onions, and garlic; simmer on stovetop until tender","Stir peanut butter and annatto water into the broth to create a rich thick sauce","Add long beans, eggplant, and bok choy; simmer 10 min; serve with sautéed bagoong"]},
+
   ]},
   {cat:"Pork",items:[
     {name:"Pulled pork (shoulder/butt)",smoke:"225–250°F",time:"10–14 hrs",internal:"205°F",tip:"Wrap at 165°F",target:205,haType:"Pulled Pork",steps:["Trim the fat cap to about 1/4\"","Season generously, ideally rest overnight in the fridge","Smoke fat-side up at 225-250°F, unwrapped","Wrap in foil at 165°F internal to push through the stall","Pull at 205°F, rest 30-45 min, then shred"]},
-    {name:"Pork Belly Burnt Ends",smoke:"225°F / 250°F",time:"4.5–5 hrs",internal:"205°F",tip:"Pan & glaze",target:205,haType:"Pork Ribs",steps:["Slice skinless pork belly into 1-inch cubes and coat with a sweet BBQ rub","Preheat Traeger to 225°F; arrange cubes on a wire rack and smoke for 3 hrs","Transfer cubes to a foil pan; toss with cubed butter, brown sugar, and BBQ sauce","Cover pan tightly with foil and raise to 250°F; cook for 1.5 hrs","Unwrap for final 15 min to caramelize the glaze until tacky"]},
-    {name:"Texas Hot Links",smoke:"200–225°F",time:"2–3 hrs",internal:"160°F",tip:"Ice bath snap",target:160,haType:"Pork Ribs",steps:["Grind 70% beef brisket trim and 30% pork fat with heavy pepper and cayenne","Mix in pink curing salt and stuff into natural hog casings","Hang or rack-dry stuffed links in the refrigerator overnight","Preheat Traeger to 200–225°F; smoke until internal temperature reaches 160°F","Plunge immediately into an ice bath for 1 minute to snap the skin; reheat to serve"]},
-    {name:"Texas Twinkies",smoke:"250°F",time:"2 hrs",internal:"Bacon crisp",tip:"Glaze last 15 min",target:null,haType:"None",steps:["Slice large jalapeños lengthwise and scrape out all seeds and white ribs","Stuff tightly with cream cheese mixed with chopped leftover smoked brisket","Wrap each jalapeño end-to-end with 1–2 thick bacon slices; secure with toothpicks","Preheat Traeger to 250°F; smoke for 2 hrs until bacon renders and gets crispy","Brush with sweet BBQ sauce during the last 15 min to set a sticky glaze"]},
-    {name:"Smoked Bologna Chubs",smoke:"225°F",time:"3 hrs",internal:"Tacky exterior",tip:"Glaze last 30 min",target:null,haType:"None",steps:["Peel the outer casing off a whole bologna chub completely","Score the exterior 1/2-inch deep in a crosshatch diamond pattern","Slather with yellow mustard and coat heavily with a sweet heat BBQ rub","Preheat Traeger to 225°F; smoke directly on grates for 3 hrs so the cuts open up","Slather with BBQ sauce during the final 30 min until caramelized"]},
-    {name:"Shotgun Shells",smoke:"250°F",time:"2 hrs",internal:"Bacon crisp",tip:"Fridge rest required",target:null,haType:"None",steps:["Mix raw ground beef, pork sausage, and shredded cheddar cheese together","Stuff meat mixture tightly into uncooked manicotti pasta tubes","Wrap each tube completely in bacon so no pasta is exposed; rest in fridge 4+ hrs or overnight","Preheat Traeger to 250°F; smoke for 2 hrs","Brush with BBQ sauce during the final 10 min"]},
-    {name:"Pork Belly Pastrami",smoke:"225°F / 250°F",time:"6–7 hrs",internal:"200°F",tip:"Cure 5 days",target:200,haType:"Pork Ribs",steps:["Cure skinless pork belly in a pink salt, kosher salt, and brown sugar brine for 5 days","Rinse thoroughly, air-dry in fridge overnight to form a tacky skin","Apply a thick coat of coarse black pepper and crushed coriander seeds","Preheat Traeger to 225°F; smoke for 4–5 hrs until internal hits 160°F","Wrap tightly in butcher paper, raise to 250°F, and pull when it hits 200°F"]},
-    {name:"Smoked Pork Belly Burnt End Tacos",smoke:"225°F / 250°F",time:"5 hrs",internal:"205°F",tip:"Caramelize fully",target:205,haType:"Pork Ribs",steps:["Follow all steps for Pork Belly Burnt Ends until fully tender and sticky","Warm flour tortillas directly on the grill grates for 15 seconds per side","Pile 3–4 caramelized pork belly burnt ends into each warm tortilla","Top with homemade pickled red onions and finely chopped fresh cilantro","Drizzle with a sharp jalapeño lime crema to cut through the rich fat"]},
-    {name:"Texas Brisket Chili",smoke:"225°F",time:"3 hrs",internal:"Simmered deep",tip:"Uncovered in Dutch oven",target:null,haType:"None",steps:["Sauté diced onions, bell peppers, jalapeños, and garlic in a Dutch oven","Stir in tomato paste, chili powder, cumin, and smoked paprika","Add 2 lbs cubed leftover smoked brisket, dark beer, and beef broth (no beans)","Preheat Traeger to 225°F; place uncovered Dutch oven directly on grates","Smoke for 3 hrs, stirring occasionally, to absorb rich wood fire flavor"]},
-    
     {name:"Spare ribs",smoke:"225°F",time:"5–6 hrs",internal:"195–200°F",tip:"3-2-1 method",target:198,haType:"Pork Ribs",steps:["Remove the membrane from the bone side","Season both sides with rub","Smoke unwrapped at 225°F for 3 hrs","Wrap in foil 2 hrs with butter/brown sugar","Unwrap, sauce, and finish 1 hr"]},
     {name:"Baby back ribs",smoke:"225°F",time:"4.5–5.5 hrs",internal:"195–200°F",tip:"2-2-1 method",target:198,haType:"Pork Ribs",steps:["Remove the membrane","Season with rub","Smoke unwrapped 2 hrs","Wrap 2 hrs with butter/honey","Finish unwrapped 1 hr, sauced"]},
     {name:"3-2-1 Baby Back Ribs (Official Traeger)",smoke:"180°F → 225°F",time:"6 hrs",internal:"205°F",tip:"3 hrs smoked meat-side up to 160°F, 2 hrs foil-wrapped w/ brown sugar & honey to 205°F, 1 hr sauced unwrapped to set the bark",target:205,haType:"Pork Ribs",steps:["Remove the membrane from the rack, season both sides","Smoke 3 hrs at 180°F meat-side up, unwrapped","Wrap tightly in foil with brown sugar & honey, smoke 2 hrs at 225°F","Unwrap, brush with BBQ sauce","Finish 1 hr unwrapped to set the glaze"]},
@@ -377,9 +394,25 @@ const COOK_DATA=[
     {name:"Pork loin",smoke:"225°F",time:"2–3 hrs",internal:"145°F",tip:"",target:145,haType:"Pork Ribs",steps:["Trim the fat cap to 1/4\"","Season or brine","Smoke at 225°F to 145°F internal","Rest 10 min tented","Slice into medallions"]},
     {name:"Ham (pre-cooked)",smoke:"225°F",time:"3–5 hrs",internal:"140°F",tip:"Glaze last 30 min",target:140,haType:"Pork Ribs",steps:["Score the surface in a diamond pattern","Place cut-side down on the grill grate","Smoke at 225°F, basting occasionally","Glaze generously in the last 30 min","Rest 10-15 min before slicing"]},
     {name:"Pork belly",smoke:"250°F",time:"4–5 hrs",internal:"165°F",tip:"Score the fat",target:165,haType:"Pork Ribs",steps:["Score the fat cap in a crosshatch","Season generously, let sit 30 min","Smoke fat-side up at 250°F to 165°F","Optional: cube and sauce for burnt ends, return to smoke","Rest 10 min before serving"]},
-    {name:"Sausage (raw)",smoke:"225°F",time:"1.5–2 hrs",internal:"160°F",tip:"",target:160,haType:"Beef Well Done",steps:["Prick casings lightly if desired","Smoke at 225°F, turning occasionally","Cook to 160°F internal","Rest 3-5 min","Serve, or sear briefly for extra snap"]},
+    {name:"Sausage (raw)",smoke:"225°F",time:"1.5–2 hrs",internal:"160°F",tip:"",target:160,haType:"Pork Ribs",steps:["Prick casings lightly if desired","Smoke at 225°F, turning occasionally","Cook to 160°F internal","Rest 3-5 min","Serve, or sear briefly for extra snap"]},
     {name:"Bacon",smoke:"200–225°F",time:"30–45 min",internal:"—",tip:"Cold smoke works great",target:null,haType:"None",steps:["Lay strips flat on a wire rack","Smoke at 200-225°F until desired crispness","Flip halfway for even color","Watch closely near the end, it renders fast","Drain on paper towel before serving"]},
-    {name:"Pork chops",smoke:"225°F",time:"1–1.5 hrs",internal:"145°F",tip:"",target:145,haType:"Pork Ribs",steps:["Brine 30 min-1 hr if desired","Season generously","Smoke at 225°F, no need to flip","Cook to 145°F internal","Rest 5 min before serving"]},
+    {name:"Pork chops",smoke:"225°F",time:"1–1.5 hrs",internal:"145°F",tip:"",target:145,haType:"Pork Ribs",steps:["Brine 30 min-1 hr if desired","Season generously","Smoke at 225°F, no need to flip","Cook to 145°F internal","Rest 5 min before serving"]},    {name:"Pork Belly Burnt Ends",smoke:"225°F / 250°F",time:"4.5–5 hrs",internal:"205°F",tip:"Pan & glaze",target:205,haType:"Pork Ribs",steps:["Slice skinless pork belly into 1-inch cubes and coat with a sweet BBQ rub","Preheat Traeger to 225°F; arrange cubes on a wire rack and smoke for 3 hrs","Transfer cubes to a foil pan; toss with cubed butter, brown sugar, and BBQ sauce","Cover pan tightly with foil and raise to 250°F; cook for 1.5 hrs","Unwrap for final 15 min to caramelize the glaze until tacky"]},
+    {name:"Texas Hot Links",smoke:"200–225°F",time:"2–3 hrs",internal:"160°F",tip:"Ice bath snap",target:160,haType:"Pork Ribs",steps:["Grind 70% beef brisket trim and 30% pork fat with heavy pepper and cayenne","Mix in pink curing salt and stuff into natural hog casings","Hang or rack-dry stuffed links in the refrigerator overnight","Preheat Traeger to 200–225°F; smoke until internal temperature reaches 160°F","Plunge immediately into an ice bath for 1 minute to snap the skin; reheat to serve"]},
+    {name:"Texas Twinkies",smoke:"250°F",time:"2 hrs",internal:"Bacon crisp",tip:"Glaze last 15 min",target:null,haType:"None",steps:["Slice large jalapeños lengthwise and scrape out all seeds and white ribs","Stuff tightly with cream cheese mixed with chopped leftover smoked brisket","Wrap each jalapeño end-to-end with 1–2 thick bacon slices; secure with toothpicks","Preheat Traeger to 250°F; smoke for 2 hrs until bacon renders and gets crispy","Brush with sweet BBQ sauce during the last 15 min to set a sticky glaze"]},
+    {name:"Smoked Bologna Chubs",smoke:"225°F",time:"3 hrs",internal:"Tacky exterior",tip:"Glaze last 30 min",target:null,haType:"None",steps:["Peel the outer casing off a whole bologna chub completely","Score the exterior 1/2-inch deep in a crosshatch diamond pattern","Slather with yellow mustard and coat heavily with a sweet heat BBQ rub","Preheat Traeger to 225°F; smoke directly on grates for 3 hrs so the cuts open up","Slather with BBQ sauce during the final 30 min until caramelized"]},
+    {name:"Shotgun Shells",smoke:"250°F",time:"2 hrs",internal:"Bacon crisp",tip:"Fridge rest required",target:null,haType:"None",steps:["Mix raw ground beef, pork sausage, and shredded cheddar cheese together","Stuff meat mixture tightly into uncooked manicotti pasta tubes","Wrap each tube completely in bacon so no pasta is exposed; rest in fridge 4+ hrs or overnight","Preheat Traeger to 250°F; smoke for 2 hrs","Brush with BBQ sauce during the final 10 min"]},
+    {name:"Pork Belly Pastrami",smoke:"225°F / 250°F",time:"6–7 hrs",internal:"200°F",tip:"Cure 5 days",target:200,haType:"Pork Ribs",steps:["Cure skinless pork belly in a pink salt, kosher salt, and brown sugar brine for 5 days","Rinse thoroughly, air-dry in fridge overnight to form a tacky skin","Apply a thick coat of coarse black pepper and crushed coriander seeds","Preheat Traeger to 225°F; smoke for 4–5 hrs until internal hits 160°F","Wrap tightly in butcher paper, raise to 250°F, and pull when it hits 200°F"]},
+    {name:"Smoked Pork Belly Burnt End Tacos",smoke:"225°F / 250°F",time:"5 hrs",internal:"205°F",tip:"Caramelize fully",target:205,haType:"Pork Ribs",steps:["Follow all steps for Pork Belly Burnt Ends until fully tender and sticky","Warm flour tortillas directly on the grill grates for 15 seconds per side","Pile 3–4 caramelized pork belly burnt ends into each warm tortilla","Top with homemade pickled red onions and finely chopped fresh cilantro","Drizzle with a sharp jalapeño lime crema to cut through the rich fat"]},
+    {name:"Texas Brisket Chili",smoke:"225°F",time:"3 hrs",internal:"Simmered deep",tip:"Uncovered in Dutch oven",target:null,haType:"None",steps:["Sauté diced onions, bell peppers, jalapeños, and garlic in a Dutch oven","Stir in tomato paste, chili powder, cumin, and smoked paprika","Add 2 lbs cubed leftover smoked brisket, dark beer, and beef broth (no beans)","Preheat Traeger to 225°F; place uncovered Dutch oven directly on grates","Smoke for 3 hrs, stirring occasionally, to absorb rich wood fire flavor"]},
+    {name:"Lechon Liempo (Rolled Pork Belly)",smoke:"225°F / 400°F",time:"4 hrs",internal:"165°F+",tip:"Crank heat at end",target:165,haType:"Pork Ribs",steps:["Score the meat side of a pork belly; stuff with lemongrass, garlic, red onions, and scallions","Roll into a tight log skin-side out; tie tightly with butcher’s twine","Prick the skin all over with a knife and rub heavily with kosher salt","Preheat Traeger to 225°F; smoke rolled belly for 3 hrs to infuse wood flavor deep into the meat","Crank Traeger to 400°F for the last 45–60 min to puff and crisp the skin; total time 4 hrs"]},
+    {name:"Smoked Lechon Belly (Flat)",smoke:"225°F / 400°F",time:"3.5–4 hrs",internal:"165°F+",tip:"Flat skin-side up; crank heat at end for crackling",target:165,haType:"Pork Ribs",steps:["Lay pork belly flat skin-side up; score the skin deeply in a crosshatch pattern","Rub the meat side with lemongrass, garlic, salt, and black pepper","Prick the skin all over with a knife and rub heavily with kosher salt","Preheat Traeger to 225°F; smoke flat for 3 hrs until meat side hits 165°F internal","Crank Traeger to 400°F for last 30–45 min to blister and crisp the skin; total time 3.5–4 hrs"]},
+    {name:"Smoked Pork Belly Tocino",smoke:"180°F",time:"1.5–2 hrs",internal:"Cured & smoked",tip:"Flash-sear finish",target:null,haType:"Pork Ribs",steps:["Slice pork belly into 1/4-inch strips; marinate in pineapple juice, sugar, salt, and garlic for 24 hrs","Lay cured sweet pork strips flat across grill grates","Preheat Traeger to 180°F; smoke for 1.5–2 hrs using fruitwood pellets","Remove from smoker; heat a skillet with a splash of water and oil","Fry quickly until water evaporates and sugars caramelize to a deep red char"]},
+    {name:"Smoked Longganisa",smoke:"180–200°F",time:"2 hrs",internal:"160°F",tip:"Dry overnight",target:160,haType:"Pork Ribs",steps:["Mix ground pork with minced garlic, brown sugar, vinegar, soy sauce, and black pepper","Stuff into hog casings, tie into 2-inch links, and hang in fridge overnight to dry","Preheat Traeger to 180–200°F; smoke using apple or cherry pellets for 2 hrs until 160°F internal","Rest 5 minutes","Pan-fry in a skillet with 1/4 cup water until it evaporates and fries in its own fat"]},
+    {name:"Smoked Pork Sisig",smoke:"225°F",time:"3 hrs",internal:"Fully rendered",tip:"Cast iron sear",target:null,haType:"Pork Ribs",steps:["Season thick pork jowl or whole pork belly slabs with salt and black pepper","Preheat Traeger to 225°F; smoke directly on grates for 3 hrs to absorb deep smoke","Cool slightly, then dice the smoked pork into very fine small pieces","Heat a cast-iron skillet until smoking hot; toss pork with chopped onions and bird’s eye chilies","Remove from heat; stir in a splash of liquid seasoning and fresh calamansi juice"]},
+    {name:"Smoked Crispy Pata",smoke:"225°F",time:"2 hrs + deep fry finish",internal:"Deep fried finish",tip:"Boil before smoke",target:null,haType:"Pork Ribs",steps:["Boil whole pork shanks in water with fish sauce, bay leaves, peppercorns, and garlic until tender","Drain the shanks and pat the skin completely dry with paper towels","Preheat Traeger to 225°F; smoke on grates for 2 hrs to dry the skin and absorb smoke","Remove from smoker and let cool completely to maximize skin crunch","Deep fry in hot oil at 375°F (or air fry at 400°F) until the skin shatters"]},
+    {name:"Inihaw na Liempo (Smokehouse Style)",smoke:"225°F / 400°F",time:"2 hrs",internal:"Charred edges",tip:"Marinate overnight",target:null,haType:"Pork Ribs",steps:["Slice pork belly into 1/2-inch thick slabs; marinate in soy sauce, calamansi, banana ketchup, and 7-Up overnight","Preheat Traeger to 225°F; lay slabs flat across smoker grates for 1.5 hrs to tenderize","Crank grill to 400°F","Sear each side for 3 min until beautifully charred and caramelized; total time 2 hrs","Slice into bite-sized strips; serve immediately with spiced vinegar dip"]},
+    {name:"Smoked Bicol Express Belly",smoke:"225°F",time:"3.5 hrs",internal:"Rendered fat",tip:"Fiery coconut stew",target:null,haType:"Pork Ribs",steps:["Season a whole pork belly with salt","Preheat Traeger to 225°F; smoke for 3 hrs, cool, and cube","Sauté minced garlic, ginger, and onions in a deep pan or wok","Add a large amount of sliced green serrano peppers or bird’s eye chilies; toss in smoked pork cubes and 2 tbsp bagoong","Pour in thick coconut cream; simmer low until sauce is thick, rich, and oily; total smoke time 3 hrs"]},
+
   ]},
   {cat:"Poultry",items:[
     {name:"Whole chicken",smoke:"275°F",time:"3–4 hrs",internal:"165°F",tip:"Pat dry, no brine needed",target:165,haType:"Chicken Well Done",steps:["Pat dry thoroughly, season under and over the skin","Truss or tie the legs for even cooking","Smoke at 275°F breast-up","Cook to 165°F in the thickest part of the breast","Rest 10 min before carving"]},
@@ -388,11 +421,13 @@ const COOK_DATA=[
     {name:"Chicken breasts",smoke:"225°F",time:"1–1.5 hrs",internal:"165°F",tip:"Brine first",target:165,haType:"Chicken Breast",steps:["Brine 30 min-2 hrs for extra juiciness","Pat dry, season","Smoke at 225°F until 165°F internal","Rest 5 min tented","Slice against the grain"]},
     {name:"Chicken wings",smoke:"250°F → 425°F",time:"2 hrs + 15 min",internal:"175°F",tip:"Crank heat at end",target:175,haType:"Chicken Well Done",steps:["Pat dry, toss with rub or a little baking powder for crispier skin","Smoke at 250°F for about 2 hrs","Crank the grill to 425°F for the final 15 min to crisp","Toss in sauce if desired","Serve hot"]},
     {name:"Whole turkey",smoke:"275°F",time:"4–8 hrs",internal:"165°F",tip:"Spatchcock for even cook",target:165,haType:"Chicken Well Done",steps:["Spatchcock or truss, pat dry","Season under and over the skin","Smoke at 275°F breast-up","Cook to 165°F in the breast","Rest 20-30 min before carving"]},
-    {name:"Smoked Turkey Legs",smoke:"250°F",time:"3–4 hrs",internal:"165°F",tip:"Brine 24 hrs",target:165,haType:"Chicken Well Done",steps:["Submerge turkey legs in a water, salt, brown sugar, and curing salt brine for 24 hrs","Remove from brine, rinse thoroughly with cold water, and pat completely dry","Lightly oil the skin and season with a low-salt poultry rub or black pepper","Preheat Traeger to 250°F; smoke using pecan or apple wood pellets for maximum color","Pull when the thickest part registers 165°F internal; total smoke time 3–4 hrs"]},
-    
     {name:"Ultimate Smoked Turkey (Official Traeger)",smoke:"225°F → 350°F",time:"6 hrs",internal:"160°F",tip:"Brine overnight, butter under skin; smoke at 225°F to 100–110°F internal, then bump to 350°F to 160°F; rests to 165°F",target:160,haType:"Chicken Well Done",steps:["Brine the turkey overnight in the fridge","Pat dry, rub softened butter under and over the skin","Smoke at 225°F until internal hits 100-110°F","Bump the grill to 350°F and finish to 160°F internal","Tent and rest until it climbs to 165°F, then carve"]},
     {name:"Turkey breast",smoke:"250°F",time:"3–4 hrs",internal:"165°F",tip:"",target:165,haType:"Chicken Well Done",steps:["Brine or season, pat dry","Smoke at 250°F skin-side up","Cook to 165°F internal","Rest 10-15 min tented","Slice against the grain"]},
-    {name:"Duck (whole)",smoke:"275°F",time:"3–4 hrs",internal:"165°F",tip:"Score skin to render fat",target:165,haType:"Chicken Well Done",steps:["Score the skin in a crosshatch to render fat","Season inside and out","Smoke at 275°F, basting occasionally","Cook to 165°F internal","Rest 10 min before carving"]},
+    {name:"Duck (whole)",smoke:"275°F",time:"3–4 hrs",internal:"165°F",tip:"Score skin to render fat",target:165,haType:"Chicken Well Done",steps:["Score the skin in a crosshatch to render fat","Season inside and out","Smoke at 275°F, basting occasionally","Cook to 165°F internal","Rest 10 min before carving"]},    {name:"Smoked Turkey Legs",smoke:"250°F",time:"3–4 hrs",internal:"165°F",tip:"Brine 24 hrs",target:165,haType:"Chicken Well Done",steps:["Submerge turkey legs in a water, salt, brown sugar, and curing salt brine for 24 hrs","Remove from brine, rinse thoroughly with cold water, and pat completely dry","Lightly oil the skin and season with a low-salt poultry rub or black pepper","Preheat Traeger to 250°F; smoke using pecan or apple wood pellets for maximum color","Pull when the thickest part registers 165°F internal; total smoke time 3–4 hrs"]},
+    {name:"Smoked Chicken Inasal",smoke:"225°F / 375°F",time:"2 hrs",internal:"165°F",tip:"Baste every 15 min",target:165,haType:"Chicken Well Done",steps:["Marinate chicken quarters in calamansi juice, lemongrass, ginger, garlic, and vinegar overnight","Prepare basting sauce: melted butter, annatto oil, and minced garlic","Preheat Traeger to 225°F; place chicken bone-side down on grates and smoke for 1.5 hrs","Baste generously every 15 min to build flavor and color","Crank to 375°F for last 20 min to char the skin; pull at 165°F internal; total time 2 hrs"]},
+    {name:"Smoked Adobo Chicken Wings",smoke:"225°F / 400°F",time:"1.25 hrs",internal:"165°F+",tip:"Reduce marinade for glaze",target:165,haType:"Chicken Well Done",steps:["Marinate chicken wings in soy sauce, cane vinegar, heavy garlic, peppercorns, and bay leaves for 4 hrs","Preheat Traeger to 225°F; arrange wings on grates and smoke for 1 hr","Boil leftover adobo marinade in a saucepan until it reduces into a thick glaze","Crank Traeger to 400°F for 15 min to crisp the wing skin","Pull wings and immediately toss in the reduced adobo glaze; total time 1 hr 15 min"]},
+    {name:"Smoked Tuwang-Tuwa (Gizzard/Hearts)",smoke:"225°F",time:"1.5 hrs",internal:"Nice snap",tip:"Soak bamboo skewers",target:null,haType:"Chicken Well Done",steps:["Clean chicken gizzards and hearts; marinate in soy sauce, sugar, garlic, and vinegar for 6 hrs","Thread marinated organ meats tightly onto pre-soaked bamboo skewers","Preheat Traeger to 225°F; arrange skewers across grill grates","Smoke for 1.5 hrs, brushing with remaining marinade oil every 30 min","Serve hot off the skewer with spiced vinegar dipping sauce"]},
+
   ]},
   {cat:"Seafood",items:[
     {name:"Salmon fillet",smoke:"180–225°F",time:"1–2 hrs",internal:"145°F",tip:"Cold smoke 2 hrs first optional",target:145,haType:"Salmon Well Done",steps:["Optional: dry brine 30-60 min with salt & sugar, rinse and pat dry","Season or glaze the flesh side","Smoke skin-side down at 180-225°F","Cook to 145°F, or pull at 130-135°F for a softer texture","Rest a few minutes before serving"]},
@@ -406,34 +441,25 @@ const COOK_DATA=[
     {name:"Tinapa – Galunggong (Round Scad)",smoke:"190°F",time:"1–1.5 hrs",internal:"145°F",tip:"Smaller fish, shorter smoke; guava or mango wood preferred",target:145,haType:"Lean Fish",steps:["Clean and gut, keep whole","Brine 3-4 hrs, smaller fish need less time","Air-dry until the skin is tacky","Smoke at 190°F with guava or mango wood to 145°F","Serve warm or refrigerate for later"]},
     {name:"Tinapa – Bonita (Skipjack Tuna)",smoke:"200°F",time:"2.5–3 hrs",internal:"145°F",tip:"Strong flavor; use a longer vinegar brine to mellow it",target:145,haType:"Lean Fish",steps:["Clean and fillet or keep whole","Brine longer, 8+ hrs, in a vinegar-forward brine to mellow the flavor","Air-dry overnight","Smoke at 200°F to 145°F internal","Cool completely before storing"]},
     {name:"Tinapa – Mackerel (Hasa-Hasa)",smoke:"195°F",time:"1.5–2 hrs",internal:"145°F",tip:"Oily fish, dry cure only; fan-dry before smoking",target:145,haType:"Lean Fish",steps:["Clean and gut, dry-cure with salt only, skip the wet brine","Fan-dry until the surface is tacky","Smoke at 195°F to 145°F internal","Cool before handling, it's delicate","Store refrigerated, best within a few days"]},
-    {name:"Lechon Liempo (Rolled Pork Belly)",smoke:"225°F / 400°F",time:"4 hrs",internal:"165°F+",tip:"Crank heat at end",target:165,haType:"Pork Ribs",steps:["Score the meat side of a pork belly; stuff with lemongrass, garlic, red onions, and scallions","Roll into a tight log skin-side out; tie tightly with butcher’s twine","Prick the skin all over with a knife and rub heavily with kosher salt","Preheat Traeger to 225°F; smoke rolled belly for 3 hrs to infuse wood flavor deep into the meat","Crank Traeger to 400°F for the last 45–60 min to puff and crisp the skin; total time 4 hrs"]},
-    {name:"Smoked Lechon Belly (Flat)",smoke:"225°F / 400°F",time:"3.5–4 hrs",internal:"165°F+",tip:"Flat skin-side up; crank heat at end for crackling",target:165,haType:"Pork Ribs",steps:["Lay pork belly flat skin-side up; score the skin deeply in a crosshatch pattern","Rub the meat side with lemongrass, garlic, salt, and black pepper","Prick the skin all over with a knife and rub heavily with kosher salt","Preheat Traeger to 225°F; smoke flat for 3 hrs until meat side hits 165°F internal","Crank Traeger to 400°F for last 30–45 min to blister and crisp the skin; total time 3.5–4 hrs"]},
-    {name:"Smoked Pork Belly Tocino",smoke:"180°F",time:"1.5–2 hrs",internal:"Cured & smoked",tip:"Flash-sear finish",target:null,haType:"Pork Ribs",steps:["Slice pork belly into 1/4-inch strips; marinate in pineapple juice, sugar, salt, and garlic for 24 hrs","Lay cured sweet pork strips flat across grill grates","Preheat Traeger to 180°F; smoke for 1.5–2 hrs using fruitwood pellets","Remove from smoker; heat a skillet with a splash of water and oil","Fry quickly until water evaporates and sugars caramelize to a deep red char"]},
-    {name:"Smoked Longganisa",smoke:"180–200°F",time:"2 hrs",internal:"160°F",tip:"Dry overnight",target:160,haType:"Pork Ribs",steps:["Mix ground pork with minced garlic, brown sugar, vinegar, soy sauce, and black pepper","Stuff into hog casings, tie into 2-inch links, and hang in fridge overnight to dry","Preheat Traeger to 180–200°F; smoke using apple or cherry pellets for 2 hrs until 160°F internal","Rest 5 minutes","Pan-fry in a skillet with 1/4 cup water until it evaporates and fries in its own fat"]},
-    {name:"Smoked Pork Sisig",smoke:"225°F",time:"3 hrs",internal:"Fully rendered",tip:"Cast iron sear",target:null,haType:"Pork Ribs",steps:["Season thick pork jowl or whole pork belly slabs with salt and black pepper","Preheat Traeger to 225°F; smoke directly on grates for 3 hrs to absorb deep smoke","Cool slightly, then dice the smoked pork into very fine small pieces","Heat a cast-iron skillet until smoking hot; toss pork with chopped onions and bird’s eye chilies","Remove from heat; stir in a splash of liquid seasoning and fresh calamansi juice"]},
-    {name:"Smoked Crispy Pata",smoke:"225°F",time:"2 hrs smoke + deep fry finish",internal:"Deep fried finish",tip:"Boil before smoke",target:null,haType:"Pork Ribs",steps:["Boil whole pork shanks in water with fish sauce, bay leaves, peppercorns, and garlic until tender","Drain the shanks and pat the skin completely dry with paper towels","Preheat Traeger to 225°F; smoke on grates for 2 hrs to dry the skin and absorb smoke","Remove from smoker and let cool completely to maximize skin crunch","Deep fry in hot oil at 375°F (or air fry at 400°F) until the skin shatters"]},
-    {name:"Inihaw na Liempo (Smokehouse Style)",smoke:"225°F / 400°F",time:"2 hrs",internal:"Charred edges",tip:"Marinate overnight",target:null,haType:"Pork Ribs",steps:["Slice pork belly into 1/2-inch thick slabs; marinate in soy sauce, calamansi, banana ketchup, and 7-Up overnight","Preheat Traeger to 225°F; lay slabs flat across smoker grates for 1.5 hrs to tenderize","Crank grill to 400°F","Sear each side for 3 min until beautifully charred and caramelized; total time 2 hrs","Slice into bite-sized strips; serve immediately with spiced vinegar dip"]},
-    {name:"Smoked Bicol Express Belly",smoke:"225°F",time:"3.5 hrs",internal:"Rendered fat",tip:"Fiery coconut stew",target:null,haType:"Pork Ribs",steps:["Season a whole pork belly with salt","Preheat Traeger to 225°F; smoke for 3 hrs, cool, and cube","Sauté minced garlic, ginger, and onions in a deep pan or wok","Add a large amount of sliced green serrano peppers or bird’s eye chilies; toss in smoked pork cubes and 2 tbsp bagoong","Pour in thick coconut cream; simmer low until sauce is thick, rich, and oily; total smoke time 3 hrs"]},
-    {name:"Smoked Chicken Inasal",smoke:"225°F / 375°F",time:"2 hrs",internal:"165°F",tip:"Baste every 15 min",target:165,haType:"Chicken Well Done",steps:["Marinate chicken quarters in calamansi juice, lemongrass, ginger, garlic, and vinegar overnight","Prepare basting sauce: melted butter, annatto oil, and minced garlic","Preheat Traeger to 225°F; place chicken bone-side down on grates and smoke for 1.5 hrs","Baste generously every 15 min to build flavor and color","Crank to 375°F for last 20 min to char the skin; pull at 165°F internal; total time 2 hrs"]},
-    {name:"Smoked Adobo Chicken Wings",smoke:"225°F / 400°F",time:"1.25 hrs",internal:"165°F+",tip:"Reduce marinade for glaze",target:165,haType:"Chicken Well Done",steps:["Marinate chicken wings in soy sauce, cane vinegar, heavy garlic, peppercorns, and bay leaves for 4 hrs","Preheat Traeger to 225°F; arrange wings on grates and smoke for 1 hr","Boil leftover adobo marinade in a saucepan until it reduces into a thick glaze","Crank Traeger to 400°F for 15 min to crisp the wing skin","Pull wings and immediately toss in the reduced adobo glaze; total time 1 hr 15 min"]},
-    {name:"Smoked Tuwang-Tuwa (Gizzard/Hearts)",smoke:"225°F",time:"1.5 hrs",internal:"Nice snap",tip:"Soak bamboo skewers",target:null,haType:"Chicken Well Done",steps:["Clean chicken gizzards and hearts; marinate in soy sauce, sugar, garlic, and vinegar for 6 hrs","Thread marinated organ meats tightly onto pre-soaked bamboo skewers","Preheat Traeger to 225°F; arrange skewers across grill grates","Smoke for 1.5 hrs, brushing with remaining marinade oil every 30 min","Serve hot off the skewer with spiced vinegar dipping sauce"]},
-    {name:"Smoked Kare-Kare Beef Shanks",smoke:"225°F",time:"5–6 hrs",internal:"Fall-apart tender",tip:"Braise after smoke",target:null,haType:"Beef Ribs",steps:["Season thick beef shanks with salt and pepper","Preheat Traeger to 225°F; smoke for 3 hrs to develop a deep red crust","Move smoked shanks to a heavy pot with water, onions, and garlic; simmer on stovetop until tender","Stir peanut butter and annatto water into the broth to create a rich thick sauce","Add long beans, eggplant, and bok choy; simmer 10 min; serve with sautéed bagoong"]},
+    {name:"Smoked cod",smoke:"225°F",time:"45–60 min",internal:"145°F",tip:"Lean fish, watch it closely so it doesn't dry out",target:145,haType:"Lean Fish",steps:["Pat fillets dry, brush lightly with oil","Season simply with salt, pepper, lemon","Smoke at 225°F skin-side down","Pull at 145°F, lean fish dries out fast","Serve immediately with a squeeze of lemon"]},    {name:"Tinapa – Bangus (Milkfish)",smoke:"200°F",time:"2–3 hrs",internal:"145°F",tip:"Score skin, brine 6–8 hrs, air dry overnight before smoking",target:145,haType:"Lean Fish",steps:["Score the skin for even smoke penetration","Brine 6-8 hrs in a salt-vinegar-garlic brine","Air-dry uncovered overnight in the fridge","Smoke at 200°F until 145°F internal","Cool before serving or storing"]},
+    {name:"Tinapa – Galunggong (Round Scad)",smoke:"190°F",time:"1–1.5 hrs",internal:"145°F",tip:"Smaller fish, shorter smoke; guava or mango wood preferred",target:145,haType:"Lean Fish",steps:["Clean and gut, keep whole","Brine 3-4 hrs, smaller fish need less time","Air-dry until the skin is tacky","Smoke at 190°F with guava or mango wood to 145°F","Serve warm or refrigerate for later"]},
+    {name:"Tinapa – Bonita (Skipjack Tuna)",smoke:"200°F",time:"2.5–3 hrs",internal:"145°F",tip:"Strong flavor; use a longer vinegar brine to mellow it",target:145,haType:"Lean Fish",steps:["Clean and fillet or keep whole","Brine longer, 8+ hrs, in a vinegar-forward brine to mellow the flavor","Air-dry overnight","Smoke at 200°F to 145°F internal","Cool completely before storing"]},
+    {name:"Tinapa – Mackerel (Hasa-Hasa)",smoke:"195°F",time:"1.5–2 hrs",internal:"145°F",tip:"Oily fish, dry cure only; fan-dry before smoking",target:145,haType:"Lean Fish",steps:["Clean and gut, dry-cure with salt only, skip the wet brine","Fan-dry until the surface is tacky","Smoke at 195°F to 145°F internal","Cool before handling, it's delicate","Store refrigerated, best within a few days"]},
     {name:"Smoked Tilapia (Tinapang Tilapia)",smoke:"180°F",time:"2.5–3 hrs",internal:"145°F",tip:"Brine 4 hrs; pellicle required",target:145,haType:"Lean Fish",steps:["Clean whole tilapia, score the sides, and soak in a 10% salt brine with calamansi juice for 4 hrs","Place fish on wire racks in front of a fan or in the fridge overnight to form a tacky pellicle","Preheat Traeger to 180°F using hickory or alder wood pellets","Smoke fish undisturbed for 2.5–3 hrs until 145°F internal and fully cooked through","Cool completely before packing; serve cold with sliced tomatoes and salted eggs"]},
     {name:"Smoked Bangus Belly",smoke:"180°F",time:"1.5–2 hrs",internal:"145°F",tip:"Butterfly cut; brine 2–3 hrs; skin-side down the whole cook",target:145,haType:"Lean Fish",steps:["Butterfly the bangus and remove the spine; leave the belly flap intact","Brine in salt, vinegar, and crushed garlic for 2–3 hrs; pat dry","Air-dry on a rack in the fridge for 1 hr to form a tacky skin","Preheat Traeger to 180°F; smoke skin-side down for 1.5–2 hrs until 145°F internal","Serve hot with garlic fried rice and spiced vinegar; total active smoke time 1.5–2 hrs"]},
     {name:"Smoked Danggit (Rabbitfish)",smoke:"170°F",time:"1–1.5 hrs",internal:"Fully dried & cooked",tip:"Pre-salted; skip brine; smoke low and slow",target:null,haType:"Lean Fish",steps:["Buy pre-salted dried danggit; rinse lightly if too salty and pat completely dry","Lay flat on wire racks — do not stack","Preheat Traeger to 170°F; smoke for 1–1.5 hrs until edges are crisp and flesh is fully dried through","Cool completely before storing; stays good refrigerated for several days","Pan-fry or serve straight from the smoker with garlic rice and sliced tomatoes"]},
     {name:"Smoked Pusit (Squid)",smoke:"225°F",time:"30–45 min",internal:"Fully cooked, charred edges",tip:"Marinate overnight; don’t overcook or it toughens",target:null,haType:"Lean Fish",steps:["Clean squid; remove the quill and ink sac; score the body in a crosshatch pattern","Marinate in soy sauce, calamansi, garlic, and black pepper overnight","Pat dry before placing on grates — excess marinade causes flare-ups","Preheat Traeger to 225°F; smoke for 30–45 min until edges char slightly and body is opaque","Serve immediately with spiced vinegar; slice into rings or serve whole"]},
-    
-    {name:"Smoked cod",smoke:"225°F",time:"45–60 min",internal:"145°F",tip:"Lean fish, watch it closely so it doesn't dry out",target:145,haType:"Lean Fish",steps:["Pat fillets dry, brush lightly with oil","Season simply with salt, pepper, lemon","Smoke at 225°F skin-side down","Pull at 145°F, lean fish dries out fast","Serve immediately with a squeeze of lemon"]},
+
   ]},
   {cat:"Lamb",items:[
-    {name:"Leg of lamb",smoke:"250°F",time:"4–6 hrs",internal:"145°F",tip:"",target:145,haType:"Beef Medium",steps:["Trim excess fat, score the remaining fat cap","Rub with garlic, rosemary, olive oil","Smoke at 250°F to 10-15°F below target","Rest, then sear if a crust is wanted","Slice against the grain"]},
+    {name:"Leg of lamb",smoke:"250°F",time:"4–6 hrs",internal:"145°F",tip:"",target:145,haType:"Beef Medium Rare",steps:["Trim excess fat, score the remaining fat cap","Rub with garlic, rosemary, olive oil","Smoke at 250°F to 10-15°F below target","Rest, then sear if a crust is wanted","Slice against the grain"]},
     {name:"Lamb shoulder",smoke:"250°F",time:"6–8 hrs",internal:"195°F",tip:"Pull like pork",target:195,haType:"Beef Ribs",steps:["Trim and season generously","Smoke unwrapped at 250°F to 165°F","Wrap in foil, continue to 195°F","Rest 20-30 min wrapped","Pull apart like pulled pork"]},
     {name:"Rack of lamb",smoke:"225°F",time:"1.5 hrs",internal:"130–135°F",tip:"Reverse sear",target:133,haType:"Beef Medium Rare",steps:["French the bones if not already done","Season, let sit at room temp 20 min","Smoke at 225°F until 15°F below target","Sear 1-2 min per side for a crust","Rest 5-10 min, slice between bones"]},
     {name:"Lamb chops",smoke:"225°F",time:"45–60 min",internal:"130–135°F",tip:"",target:133,haType:"Beef Medium Rare",steps:["Season generously, let sit 20 min","Smoke at 225°F until near target internal","Sear briefly on high heat for a crust","Rest 3-5 min","Serve immediately"]},
   ]},
   {cat:"Vegetables",items:[
     {name:"Corn on the cob",smoke:"225°F",time:"60–90 min",internal:"—",tip:"Husk on",target:null,haType:"None",steps:["Leave husks on, or peel and wrap in foil","Soak husk-on corn in water 15 min first","Smoke at 225°F, turning occasionally","Cook until kernels are tender","Peel back husk, butter, and serve"]},
-    {name:"Baked potato",smoke:"225–250°F",time:"2–2.5 hrs",internal:"210°F",tip:"Rub with oil + salt",target:210,haType:"Beef Well Done",steps:["Scrub and dry potatoes","Rub with oil and salt","Smoke at 225-250°F until fork-tender","Check that internal temp reaches 210°F","Split and top as desired"]},
+    {name:"Baked potato",smoke:"225–250°F",time:"2–2.5 hrs",internal:"210°F",tip:"Rub with oil + salt",target:210,haType:"None",steps:["Scrub and dry potatoes","Rub with oil and salt","Smoke at 225-250°F until fork-tender","Check that internal temp reaches 210°F","Split and top as desired"]},
     {name:"Asparagus",smoke:"375°F",time:"15–20 min",internal:"—",tip:"",target:null,haType:"None",steps:["Trim woody ends","Toss with oil, salt, pepper","Smoke at 375°F in a single layer","Turn once halfway through","Pull while still slightly crisp"]},
     {name:"Jalapeño poppers",smoke:"250°F",time:"60–90 min",internal:"—",tip:"Fill with cream cheese",target:null,haType:"None",steps:["Halve peppers, remove seeds and ribs","Fill with seasoned cream cheese","Wrap in bacon if desired","Smoke at 250°F until bacon crisps","Cool slightly before serving"]},
     {name:"Stuffed mushrooms",smoke:"250°F",time:"45–60 min",internal:"—",tip:"",target:null,haType:"None",steps:["Remove stems, clean the caps","Mix stems with cheese and breadcrumbs for filling","Fill caps generously","Smoke at 250°F until tops are golden","Serve warm"]},
@@ -448,10 +474,9 @@ const COOK_DATA=[
     {name:"Mac & cheese",smoke:"225°F",time:"1–1.5 hrs",internal:"—",tip:"Cast iron",target:null,haType:"None",steps:["Cook pasta, make a cheese sauce base","Combine in a cast iron skillet","Top with extra cheese or breadcrumbs","Smoke at 225°F until bubbly and set","Rest 5 min before serving"]},
     {name:"Smoked nuts",smoke:"180°F",time:"2–3 hrs",internal:"—",tip:"Stir every 30 min",target:null,haType:"None",steps:["Toss raw nuts with oil and seasoning","Spread in a single layer on a sheet pan","Smoke at 180°F, stirring every 30 min","Cook until fragrant and lightly toasted","Cool completely before storing"]},
     {name:"Smoked queso",smoke:"225°F",time:"1.5–2 hrs",internal:"—",tip:"Cast iron, stir occasionally",target:null,haType:"None",steps:["Combine cheese, rotel, and sausage/chorizo in a cast iron pan","Smoke at 225°F, stirring occasionally","Cook until fully melted and bubbly","Stir well before serving","Serve warm with chips"]},
-    {name:"Beef jerky",smoke:"180°F",time:"4–6 hrs",internal:"—",tip:"Thin slices, marinated",target:null,haType:"None",steps:["Slice meat thin (1/4\") against the grain","Marinate 4-12 hrs in the fridge","Pat dry, lay flat on racks","Smoke at 180°F until dry and pliable","Cool fully before storing airtight"]},
     {name:"Pizza",smoke:"450–500°F",time:"12–15 min",internal:"—",tip:"Preheat stone 45 min",target:null,haType:"None",steps:["Preheat the grill with a pizza stone 45 min","Stretch dough, add sauce and toppings","Slide onto the hot stone","Smoke at 450-500°F until the crust is golden","Slice and serve immediately"]},
     {name:"Smoked deviled eggs",smoke:"180°F",time:"30–45 min",internal:"—",tip:"Pre-hardboil first",target:null,haType:"None",steps:["Hard boil and peel eggs first","Smoke whole peeled eggs at 180°F","Halve, scoop yolks, mix with mayo & seasoning","Pipe filling back into the whites","Chill briefly before serving"]},
-    {name:"ABTs (atomic buffalo turds)",smoke:"250°F",time:"1.5–2 hrs",internal:"165°F",tip:"Bacon-wrapped jalapeños",target:165,haType:"Chicken Well Done",steps:["Halve jalapeños, remove seeds","Fill with cream cheese and sausage mixture","Wrap each in a half-strip of bacon","Smoke at 250°F until bacon is crisp and filling hits 165°F","Cool slightly before serving"]},
+    {name:"ABTs (atomic buffalo turds)",smoke:"250°F",time:"1.5–2 hrs",internal:"165°F",tip:"Bacon-wrapped jalapeños",target:165,haType:"None",steps:["Halve jalapeños, remove seeds","Fill with cream cheese and sausage mixture","Wrap each in a half-strip of bacon","Smoke at 250°F until bacon is crisp and filling hits 165°F","Cool slightly before serving"]},
     {name:"Smoked salsa",smoke:"225°F",time:"30–45 min",internal:"—",tip:"Char veggies first, then smoke and blend",target:null,haType:"None",steps:["Char tomatoes, onions, jalapeños, and garlic on the grill","Smoke at 225°F for extra depth if desired","Blend with cilantro, lime, and salt","Chill before serving","Adjust heat with reserved jalapeño seeds"]},
     {name:"Smoked nachos",smoke:"225–250°F",time:"20–30 min",internal:"—",tip:"Great use for leftover smoked meat",target:null,haType:"None",steps:["Layer chips on a sheet pan or cast iron","Top with cheese and leftover smoked meat","Smoke at 225-250°F until cheese melts","Add fresh toppings after pulling: salsa, sour cream, jalapeños","Serve immediately"]},
   ]},
@@ -771,14 +796,13 @@ function probeDone(n,item){
 }
 
 function buildMerged(){
-  if(!customFoods.length)return COOK_DATA;
-  const m=COOK_DATA.map(s=>({...s,items:[...s.items]}));
+  let m=COOK_DATA.map(s=>({...s,items:[...s.items]}));
   customFoods.forEach(cf=>{
     const sec=m.find(s=>s.cat===cf.cat);
     if(sec)sec.items.push(cf);
     else{const ex=m.find(s=>s.cat==="Custom");if(ex)ex.items.push(cf);else m.push({cat:"Custom",items:[cf]});}
   });
-  return m;
+  return applyCatOverrides(m);
 }
 
 // Which probe (if any, and not the pit) currently holds this food?
@@ -831,12 +855,14 @@ function render(){
         </div>
         ${item.tip?`<div class="det-tip">💡 ${item.tip}</div>`:''}
         ${item.steps&&item.steps.length?`<ol class="det-steps">${item.steps.map(s=>`<li>${s}</li>`).join('')}</ol>`:''}
-      </div>`;
+      
+        <div class="det-probe">&#127777; Insert probe into the <strong>thickest part</strong> of the meat, away from bones and fat seams. Pull at <strong>${item.internal}</strong> internal temp.</div></div>`;
     });
     html+=`</div>`;
   });
   if(!total)html=`<div class="no-results">No results${query?' for "'+query+'"':""}</div>`;
   document.getElementById("output").innerHTML=html;
+  if(organizeMode) applyOrganizeUI();
 }
 
 function toggleRow(idx){
@@ -1003,9 +1029,122 @@ function showToast(msg,type){
 }
 
 if(window.Notification&&Notification.permission==="default")Notification.requestPermission();
+
+// ── Organize mode ─────────────────────────────────────────────────────────────
+const CAT_OV_KEY = 'tcg_cat_overrides';
+let organizeMode = false;
+let orgSelected = new Set();
+
+function loadCatOverrides(){ try{ return JSON.parse(localStorage.getItem(CAT_OV_KEY)||'{}'); }catch(e){ return {}; } }
+function saveCatOverrides(ov){ localStorage.setItem(CAT_OV_KEY, JSON.stringify(ov)); }
+
+function applyCatOverrides(data){
+  const ov = loadCatOverrides();
+  if(!Object.keys(ov).length) return data;
+  const result = data.map(s=>({...s,items:[...s.items]}));
+  Object.entries(ov).forEach(([name,newCat])=>{
+    let found=null;
+    result.forEach(s=>{ const i=s.items.findIndex(x=>x.name===name); if(i!==-1){found=s.items.splice(i,1)[0];} });
+    if(!found)return;
+    const tgt=result.find(s=>s.cat===newCat);
+    if(tgt) tgt.items.push(found);
+    else result.push({cat:newCat,items:[found]});
+  });
+  return result.filter(s=>s.items.length>0);
+}
+
+function applyOrganizeUI(){
+  const rows = document.querySelectorAll('.food-row');
+  rows.forEach((row,i)=>{
+    const item = _reg[i];
+    if(!item) return;
+    const isSel = orgSelected.has(item.name);
+    if(isSel) row.classList.add('org-selected');
+    else row.classList.remove('org-selected');
+    // Prepend checkbox if not already there
+    if(!row.querySelector('.org-check')){
+      const cb = document.createElement('input');
+      cb.type='checkbox'; cb.className='org-check'; cb.checked=isSel;
+      cb.onclick=(e)=>e.stopPropagation();
+      row.prepend(cb);
+    } else {
+      row.querySelector('.org-check').checked=isSel;
+    }
+    // Override click
+    row.onclick=(e)=>{
+      e.stopPropagation();
+      if(orgSelected.has(item.name)) orgSelected.delete(item.name);
+      else orgSelected.add(item.name);
+      orgUpdateBar();
+      applyOrganizeUI();
+    };
+  });
+}
+
+function toggleOrganize(){
+  organizeMode=!organizeMode;
+  orgSelected.clear();
+  const btn=document.getElementById('org-btn');
+  const bar=document.getElementById('org-bar');
+  if(organizeMode){
+    btn.classList.add('active'); btn.textContent='Cancel';
+    bar.classList.add('visible');
+    document.body.style.paddingBottom='70px';
+    // Populate category dropdown
+    const sel=document.getElementById('org-cat-sel');
+    sel.innerHTML='<option value="">Move to...</option>';
+    COOK_DATA.forEach(s=>{ const o=document.createElement('option'); o.value=s.cat; o.textContent=s.cat; sel.appendChild(o); });
+  } else {
+    btn.classList.remove('active'); btn.textContent='Organize';
+    bar.classList.remove('visible');
+    document.body.style.paddingBottom='';
+  }
+  orgUpdateBar();
+  render();
+}
+
+function orgUpdateBar(){
+  const n=orgSelected.size;
+  document.getElementById('org-count').textContent=n?`${n} selected`:'Select recipes';
+  document.getElementById('org-move-btn').disabled=n===0;
+}
+
+function orgSelectAll(){
+  const rows=document.querySelectorAll('.food-row');
+  const allNames=[..._reg].map(i=>i&&i.name).filter(Boolean);
+  const allSel=allNames.every(n=>orgSelected.has(n));
+  if(allSel){ allNames.forEach(n=>orgSelected.delete(n)); }
+  else { allNames.forEach(n=>orgSelected.add(n)); }
+  orgUpdateBar();
+  applyOrganizeUI();
+}
+
+function orgMove(){
+  const cat=document.getElementById('org-cat-sel').value;
+  if(!cat||!orgSelected.size) return;
+  const ov=loadCatOverrides();
+  orgSelected.forEach(name=>{ ov[name]=cat; });
+  saveCatOverrides(ov);
+  orgSelected.clear();
+  orgUpdateBar();
+  render();
+  const btn=document.getElementById('org-move-btn');
+  btn.textContent='Moved!';
+  setTimeout(()=>{ btn.textContent='Move'; },1200);
+}
+
 loadCustom();loadPit();buildChips();renderCustomList();renderPitSel();updatePit();updateConn();render();connectHA();
 document.getElementById("search").oninput=e=>{query=e.target.value.toLowerCase();openIdx=null;render();};
 setInterval(()=>{if(haOk)refresh();},5000);
 </script>
+
+<!-- Organize bar -->
+<div id="org-bar" class="org-bar">
+  <span class="org-bar-count" id="org-count">0 selected</span>
+  <button class="org-bar-selall" onclick="orgSelectAll()">All</button>
+  <select id="org-cat-sel"><option value="">Move to...</option></select>
+  <button class="org-bar-move" id="org-move-btn" onclick="orgMove()" disabled>Move</button>
+  <button class="org-bar-cancel" onclick="toggleOrganize()">Done</button>
+</div>
 </body>
 </html>
