@@ -10,7 +10,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
 
-from .const import DOMAIN, WWW_SUBDIR, HTML_FILENAME
+from .const import DOMAIN, VERSION, WWW_SUBDIR, HTML_FILENAME
 from .helpers import async_create_helpers, async_remove_helpers
 from .automations import async_create_automations, async_remove_automations
 from .www_install import install_www_files, remove_www_files
