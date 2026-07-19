@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 DOMAIN = "traeger_cook_guide"
-VERSION = "2.0.0"
+VERSION = "2.2.0"
 
 # Probe numbers this integration manages (Govee H5198 has four).
 PROBES = (1, 2, 3, 4)
