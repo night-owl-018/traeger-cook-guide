@@ -21,7 +21,7 @@ CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 _DASHBOARD_YAML = (
     "type: iframe\n"
-    f"url: /local/{WWW_SUBDIR}/{HTML_FILENAME}\n"
+    f"url: /local/{WWW_SUBDIR}/{HTML_FILENAME}?v={VERSION}\n"
     'aspect_ratio: "100%"\n'
     "title: Traeger Cook Guide"
 )
